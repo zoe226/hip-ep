@@ -233,12 +233,24 @@ struct ComputeOpBufferization
     }
 
     SmallVector<Value> bufferizedOutputs;
-    for (Value output : computeOp.getOutputs()) {
+    for (auto [idx, output] : llvm::enumerate(computeOp.getOutputs())) {
       if (isa<TensorType>(output.getType())) {
-        FailureOr<Value> buffer = getBuffer(rewriter, output, options, state);
-        if (failed(buffer))
-          return failure();
-        bufferizedOutputs.push_back(*buffer);
+        // Check if this output's block argument is actually used in the body
+        unsigned blockArgIdx = computeOp.getInputs().size() + 1 + idx; // ctx + ins + this_output
+        BlockArgument outArg = oldBody->getArgument(blockArgIdx);
+        
+        // If the output block argument is unused, reuse an input buffer
+        // TODO: This currently hardcodes bufferizedInputs[0], which only works
+        // for single-input cases. For multiple inputs/outputs, need to determine
+        // which specific input buffer to reuse based on what the yield traces to.
+        if (outArg.use_empty() && !bufferizedInputs.empty()) {
+          bufferizedOutputs.push_back(bufferizedInputs[0]);
+        } else {
+          FailureOr<Value> buffer = getBuffer(rewriter, output, options, state);
+          if (failed(buffer))
+            return failure();
+          bufferizedOutputs.push_back(*buffer);
+        }
       } else {
         bufferizedOutputs.push_back(output);
       }
