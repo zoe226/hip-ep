@@ -1,0 +1,115 @@
+##
+## Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+## Licensed under the MIT License.
+##
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DEPLOYMENT TARGET
+#
+# These four values are the ONLY place the site's location is configured.
+# Everything else in the site refers to them via {{ site.url }},
+# {{ site.baseurl }} and {{ site.repo }}.
+#
+# Moving the site is a four-line change:
+#
+#   fork (current)     url: https://zoe226.github.io   baseurl: /hip-ep
+#   upstream           url: https://rocm.github.io     baseurl: /hip-ep
+#   custom domain      url: https://<domain>           baseurl: ""
+#
+# `repo` always points at the canonical upstream repository, even while the
+# site itself is served from a fork -- source, issue and release links should
+# never send users to a personal fork.
+# ─────────────────────────────────────────────────────────────────────────────
+url: "https://zoe226.github.io"
+baseurl: "/hip-ep"
+repo: "ROCm/hip-ep"
+repo_url: "https://github.com/ROCm/hip-ep"
+
+title: "HIP EP"
+tagline: "ONNX Runtime Execution Provider for AMD GPUs"
+description: >-
+  hip-ep is an ONNX Runtime Execution Provider for AMD GPUs. It compiles ONNX
+  graphs through an MLIR pipeline and executes them with hipDNN, hipBLASLt and
+  custom HIP kernels.
+
+# Version currently documented. Referenced by the download blocks and by the
+# benchmark pages' environment block, so it is defined once here.
+hip_ep_version: "v0.4.0"
+
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+plugins:
+  - jekyll-sitemap
+
+kramdown:
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: 'highlight'
+    block:
+      line_numbers: false
+
+# `site/` is self-contained: nothing outside it is part of the published site.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - README.md
+
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: page
+  - scope:
+      path: "docs"
+      type: "pages"
+    values:
+      layout: docs
+      toc: true
+
+# ── Global header navigation ────────────────────────────────────────────────
+# Only pages that exist are listed. Models and Benchmarks are added here the
+# moment those sections land, so the published site never links into a 404.
+nav_links:
+  - label: Docs
+    url: "/docs/"
+  - label: Quick Start
+    url: "/docs/quickstart/"
+
+cta_links:
+  - label: GitHub
+    url: "https://github.com/ROCm/hip-ep"
+    icon: github
+  - label: Releases
+    url: "https://github.com/ROCm/hip-ep/releases"
+    icon: download
+  - label: Issues
+    url: "https://github.com/ROCm/hip-ep/issues"
+    icon: bug
+
+# ── Documentation sidebar ───────────────────────────────────────────────────
+# Hand-maintained, and it also drives the previous/next pager in
+# _layouts/docs.html -- so the order here is the reading order of the site.
+# The sidebar is not generated from the file tree: an unlisted page is
+# reachable only by URL, and a listed-but-missing page is a live 404. Add an
+# entry in the same change that adds the page, never before.
+#
+# The remaining v1 sections (Models, Benchmarks, Tutorials) are added here as
+# they land. No label or URL may contain "|" -- see _layouts/docs.html.
+docs_nav:
+  - label: Overview
+    url: "/docs/"
+
+  - label: Quick Start
+    children:
+      - label: Overview
+        url: "/docs/quickstart/"
+      - label: Linux
+        url: "/docs/quickstart/linux/"
+      - label: Windows
+        url: "/docs/quickstart/windows/"
+      - label: Build from Source
+        url: "/docs/quickstart/build/"

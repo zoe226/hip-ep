@@ -36,8 +36,12 @@ repos:
         # -x excludes paths from license-header insertion. morphizen/* (the
         # vendored subtree) keeps its own upstream copyright headers, and
         # lib/Runtime/Kernels/* (the hand-written GPU kernels) keeps its existing
-        # headers untouched.
-        args: [-t,./LICENSES/license.txt,-x,morphizen/*,lib/Runtime/Kernels/*,-s,./LICENSES/settings.json,-f]
+        # headers untouched. site/* is the Jekyll documentation site: Jekyll
+        # requires the "---" front matter to be the very first line of a file,
+        # so a prepended comment header would silently demote every page to an
+        # unrendered static asset. Its headers are carried inside the front
+        # matter or in a Liquid comment instead.
+        args: [-t,./LICENSES/license.txt,-x,morphizen/*,lib/Runtime/Kernels/*,site/*,-s,./LICENSES/settings.json,-f]
         language: python
         additional_dependencies: [licenseheaders==0.8.8]
         types: [file]

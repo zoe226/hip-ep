@@ -164,3 +164,13 @@ test/python/data/whisper/librispeech/
 .depend/
 CMakeUserPresets.json
 build.*/
+
+# Jekyll documentation site (site/): local build output and gem cache. The
+# published site is built by .github/workflows/pages.yml, never committed.
+# The destination is the repository root's _site/ because that is where the
+# workflow writes it, so a local build and CI produce identical layouts.
+/_site/
+site/.jekyll-cache/
+site/.jekyll-metadata
+site/vendor/
+site/.bundle/

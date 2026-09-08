@@ -1,0 +1,94 @@
+##
+## Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+## Licensed under the MIT License.
+##
+name: pages
+
+# Builds the Jekyll documentation site in site/ and publishes it to GitHub
+# Pages. Pull requests build and link-check but never deploy, so a docs PR can
+# be reviewed for render errors before it reaches the published site.
+#
+# Enabling this requires a one-time repository setting that a workflow cannot
+# make for itself: Settings > Pages > Build and deployment > Source = GitHub
+# Actions. Until that is set, the deploy job fails with "Pages is not enabled".
+
+on:
+  pull_request:
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        submodules: false
+        lfs: false
+        # The site build reads only the working tree; no history is needed.
+        fetch-depth: 1
+
+    - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+      with:
+        ruby-version: "3.3"
+        bundler-cache: true
+        working-directory: site
+
+    - name: Build site
+      working-directory: site
+      env:
+        JEKYLL_ENV: production
+      run: bundle exec jekyll build --destination ../_site --trace
+
+    # Internal links only. External links are checked out of band: a docs
+    # build must not go red because a third-party host is having a bad day.
+    #
+    # Every href in the built site is prefixed with site.baseurl, which does not
+    # exist as a directory inside the artifact, so it is stripped before
+    # resolution. The value is read back out of _config.yml rather than repeated
+    # here, so moving the site stays the four-line change advertised there.
+    - name: Check internal links
+      working-directory: site
+      run: |
+        baseurl="$(bundle exec ruby -ryaml -e 'print YAML.load_file("_config.yml")["baseurl"].to_s')"
+        bundle exec htmlproofer ../_site \
+          --checks Links \
+          --disable-external \
+          --allow-hash-href \
+          --swap-urls "^${baseurl}:"
+
+    - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      with:
+        path: _site
+
+  deploy:
+    # Deploys only from main. A fork publishes its own preview site from its
+    # own main, which is how this site is reviewed before it is proposed
+    # upstream.
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - id: deployment
+      uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
