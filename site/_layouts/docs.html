@@ -54,7 +54,7 @@ Licensed under the MIT License.
       </div>
       <nav class="docs-nav">
         {% for entry in site.docs_nav %}
-        <div class="docs-nav__group">
+        <div class="docs-nav__group{% if entry.children %} docs-nav__group--section{% endif %}">
           {% if entry.url %}
           <a href="{{ entry.url | relative_url }}"
             class="docs-nav__link{% if entry.url == here %} is-active{% endif %}">{{ entry.label }}</a>
