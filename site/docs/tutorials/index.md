@@ -57,8 +57,10 @@ afternoon with this project.
 <div class="note note--warn" markdown="1">
 **These pages have not been executed end to end on hardware yet.** Every command,
 flag and environment variable below was read out of the hip-ep source tree rather
-than invented, but the pages themselves are pending a full dry run on a Strix
-Halo machine. If a command does not behave as described, that is a
+than invented, and corrections found while dry-running the
+[Windows Quick Start]({{ '/docs/quickstart/windows/' | relative_url }}) on a
+Ryzen AI Max have been applied here — but the tutorials themselves are still
+pending a run of their own. If a command does not behave as described, that is a
 documentation bug — please
 [open an issue]({{ site.repo_url }}/issues).
 </div>

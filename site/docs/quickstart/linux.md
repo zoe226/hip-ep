@@ -14,6 +14,16 @@ Every command is safe to re-run. If you lose your shell, re-run
 Paths are concrete on purpose. Everything lands under `$HOME/hip-ep-runtime`;
 substitute a different directory if you like, but substitute it everywhere.
 
+<div class="note note--warn" markdown="1">
+**This page has not been run end to end on a Linux machine.** Its commands come
+from the hip-ep source tree, and the behavior it describes for `hip-onnx-runner`
+— dump-directory naming, fallback handling, strict mode — was verified on the
+[Windows page]({{ '/docs/quickstart/windows/' | relative_url }}), where the same
+tool is built from the same sources. The ROCm installation steps, which have no
+Windows counterpart, are the untested part. If something does not behave as
+described, please [open an issue]({{ site.repo_url }}/issues).
+</div>
+
 <div class="note" markdown="1">
 **Disk and time.** ROCm is about 2.4 GB compressed and roughly 8 GB extracted;
 the hip-ep package is 459 MB compressed. Budget ~15 GB of free space and, on a
@@ -229,8 +239,18 @@ cd "$HOME/hip-ep-runtime"
 hip-onnx-runner -m smoke.onnx
 ```
 
-Expected: the run completes and prints timing. **The first run is slow** — this
-is the compile — and a second run of the same command is fast.
+Expected: the run completes and prints timing — most of it spent compiling
+during session creation.
+
+Two things about that output are easy to misread:
+
+- **Re-running is not faster.** There is no on-disk artifact cache in
+  `{{ site.hip_ep_version }}`, so every invocation recompiles the model from
+  scratch.
+- **The `Inference:` line is not this model's latency.** It is the first
+  inference on a freshly compiled model, so it carries kernel load and warm-up,
+  and it can overstate steady-state latency by orders of magnitude. Step 8
+  measures the number you actually want.
 
 `hip-onnx-runner` feeds random input by default, which is fine here. It is not
 fine for a language model, whose `input_ids` must be below the vocabulary size;
@@ -244,28 +264,44 @@ hip-onnx-runner -m /path/to/llm.onnx -i gen_inputs
 
 ## Step 7 — Prove the GPU actually ran it {#step-7}
 
-This is the step people skip, and it is the reason "hip-ep is not faster than
-CPU" reports usually turn out to be CPU-only runs. On a compilation failure ONNX
-Runtime falls back to the CPU EP and still returns correct numbers.
+On a compilation failure ONNX Runtime falls back to the CPU EP and still returns
+correct numbers, so a run that looks fine can be a CPU run.
+
+`hip-onnx-runner` already guards against that for you: it sets
+`session.disable_cpu_ep_fallback=1` on every session, so a fallback is a hard
+error here rather than a silent one. That guard is a property of this tool, not
+of hip-ep — your own application, a Python script, or `model_benchmark` will
+fall back silently unless you disable it yourself.
+
+`HIPDNN_EP_STRICT` goes further. It aborts inside the compiler at the pass that
+failed, which is what you want when you need to see *why* a graph could not be
+compiled rather than just that it could not:
 
 ```bash
 HIPDNN_EP_STRICT=1 hip-onnx-runner -m smoke.onnx
 ```
 
-Expected: the same successful run as step 6.
+Expected: the same successful run as step 6. A clean run under strict mode means
+every subgraph hip-ep claimed, it also compiled.
 
-`HIPDNN_EP_STRICT=1` turns a silent fallback into a hard failure. **If step 6
-succeeds and step 7 fails**, then step 6 was running on the CPU and the error
-you now see is the real one.
+<div class="note note--warn" markdown="1">
+**Unset the variable to turn strict mode off — do not set it to `0`.** The
+variable is tested for presence, not for value, so `HIPDNN_EP_STRICT=0` enables
+strict mode exactly as `=1` does. Only `unset HIPDNN_EP_STRICT` disables it.
+</div>
 
 For a second, independent confirmation, compare EP output against CPU output
 directly:
 
 ```bash
-hip-onnx-runner -m smoke.onnx -d 2                 # EP outputs  -> ep_o_dump/
-hip-onnx-runner -m smoke.onnx -d 2 -n              # CPU outputs -> cpu_o_dump/
-hip-onnx-runner -L ep_o_dump,cpu_o_dump            # L2-norm comparison
+hip-onnx-runner -m smoke.onnx -d 2                 # EP outputs  -> smoke_o_dump/
+hip-onnx-runner -m smoke.onnx -d 2 -n              # CPU outputs -> smoke_cpu_o_dump/
+hip-onnx-runner -L smoke_o_dump,smoke_cpu_o_dump   # L2-norm comparison
 ```
+
+Dump directories are named from the model file's stem, so with a model of your
+own the two directories are `<stem>_o_dump` and `<stem>_cpu_o_dump`. The names
+differ, so the second command does not overwrite the first.
 
 Expected: a small L2 norm. Exact bit equality is not expected and not a goal —
 the GPU path uses different kernels and different accumulation order.
@@ -284,9 +320,13 @@ onnxruntime_perf_test \
   smoke.onnx
 ```
 
-`session.disable_cpu_ep_fallback|1` serves the same purpose as
-`HIPDNN_EP_STRICT` above: it makes a fallback an error rather than a quiet
-slowdown. For the CPU baseline you are comparing against:
+`session.disable_cpu_ep_fallback|1` is needed here in a way it was not in step 7:
+`onnxruntime_perf_test` does not set it for you the way `hip-onnx-runner` does.
+
+Do not read too much into the result. `smoke.onnx` is three nodes over a 512×512
+matrix, small enough that launch and dispatch overhead is nearly all of the
+measurement — it is a check that the toolchain works end to end, not a workload.
+For the CPU baseline you are comparing against:
 
 ```bash
 onnxruntime_perf_test -e cpu -t 30 -c 1 -s smoke.onnx

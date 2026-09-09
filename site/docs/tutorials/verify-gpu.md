@@ -27,14 +27,19 @@ $env:HIPDNN_EP_STRICT = "1"
 Remove-Item Env:\HIPDNN_EP_STRICT
 ```
 
-If the same command succeeds without `HIPDNN_EP_STRICT` and fails with it, the
-successful run was on the CPU, and the error you now see is the real one that
-was being swallowed.
-
 **What it actually does:** when the MLIR pass pipeline fails to compile a graph
 hip-ep has claimed, the default behavior is to return failure quietly and let
-ORT fall back. With the variable set, the process calls `abort()` instead, and
-the crash handler prints a backtrace pointing at the failing pass.
+ORT fall back to the CPU. With the variable set, the process calls `abort()`
+instead, and the crash handler prints a backtrace pointing at the failing pass.
+
+What that means depends on the harness. In a host that permits fallback — your
+own application, a Python script, `model_benchmark` — a command that succeeds
+without the variable and fails with it was running on the CPU, and the error you
+now see is the one that was being swallowed. `hip-onnx-runner` is not such a
+host: it disables fallback itself (see check 2), so a compilation failure already
+stops the run. There, strict mode is not what turns a silent problem into a loud
+one; it is what turns a plain failure into a backtrace naming the pass that
+failed.
 
 <div class="note note--warn" markdown="1">
 **`HIPDNN_EP_STRICT=0` does not turn strict mode off — it turns it on.**
@@ -104,14 +109,14 @@ The strongest positive evidence, and the only one that confirms the GPU produced
 the numbers rather than merely being present.
 
 ```bash
-hip-onnx-runner -m your_model.onnx -d 2        # EP  outputs -> your_model_o_dump/
-hip-onnx-runner -m your_model.onnx -d 2 -n     # CPU outputs -> ..._o_dump/ (rename first)
-hip-onnx-runner -L ep_o_dump,cpu_o_dump        # element-wise L2 norm
+hip-onnx-runner -m your_model.onnx -d 2     # EP  -> your_model_o_dump/
+hip-onnx-runner -m your_model.onnx -d 2 -n  # CPU -> your_model_cpu_o_dump/
+hip-onnx-runner -L your_model_o_dump,your_model_cpu_o_dump   # element-wise L2 norm
 ```
 
 `-n` skips EP registration entirely, so the second run is a genuine CPU
-reference. Rename or move the first dump directory before the second run, or the
-second will overwrite it.
+reference. Both directories are named from the model file's stem, and the CPU run
+adds `_cpu`, so the two names differ and nothing needs renaming between runs.
 
 Expected: a **small but non-zero** L2 norm.
 
