@@ -177,15 +177,48 @@
     return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  function snippetFor(content, query) {
-    var at = content.toLowerCase().indexOf(query);
-    if (at < 0) return escapeHtml(content.slice(0, 110)) + '…';
+  function tokenize(raw) {
+    return raw.toLowerCase().split(/\s+/).filter(function (t) { return t.length > 0; });
+  }
 
-    var start = Math.max(0, at - 40);
-    var raw = content.slice(start, at + query.length + 70);
-    var html = escapeHtml(raw);
-    var hit = escapeHtml(content.substr(at, query.length));
-    return (start > 0 ? '…' : '') + html.replace(hit, '<mark>' + hit + '</mark>') + '…';
+  function countOccurrences(haystack, needle) {
+    var n = 0;
+    var at = haystack.indexOf(needle);
+    while (at >= 0) { n += 1; at = haystack.indexOf(needle, at + needle.length); }
+    return n;
+  }
+
+  // The snippet must show the reader *why* a page matched, so it is cut from
+  // the body around the first hit. Falling back to the description -- which
+  // every docs page has -- would show text that need not contain the query at
+  // all, which is why this takes the whole page rather than a pre-chosen string.
+  function snippetFor(page, terms, phrase) {
+    var content = page.content || '';
+    var lower = content.toLowerCase();
+    var at = -1;
+    var len = 0;
+
+    if (phrase.indexOf(' ') >= 0) { at = lower.indexOf(phrase); len = phrase.length; }
+    for (var i = 0; at < 0 && i < terms.length; i += 1) {
+      at = lower.indexOf(terms[i]);
+      len = terms[i].length;
+    }
+
+    if (at < 0) {
+      var fallback = page.description || content;
+      return escapeHtml(fallback.slice(0, 140)) + (fallback.length > 140 ? '…' : '');
+    }
+
+    var start = Math.max(0, at - 60);
+    var end = Math.min(content.length, at + len + 90);
+    var rel = at - start;
+    var window_ = content.slice(start, end);
+    // Split on the known offset rather than string-replacing the match: the
+    // match text can legitimately occur earlier in the window.
+    var html = escapeHtml(window_.slice(0, rel))
+      + '<mark>' + escapeHtml(window_.substr(rel, len)) + '</mark>'
+      + escapeHtml(window_.slice(rel + len));
+    return (start > 0 ? '…' : '') + html + (end < content.length ? '…' : '');
   }
 
   function initSearch() {
@@ -222,14 +255,34 @@
       if (query.length < 2) { close(); return; }
       if (!index) { pending = rawQuery; load(); return; }
 
+      // Every term must appear somewhere, so "cpu fallback" matches a page that
+      // says both words apart rather than requiring that exact string. Ranking
+      // is by where and how often, so a page that merely mentions a word once
+      // does not tie with the page that is about it.
+      var terms = tokenize(query);
       var hits = [];
       index.forEach(function (page) {
         var title = (page.title || '').toLowerCase();
         var body = ((page.description || '') + ' ' + (page.content || '')).toLowerCase();
         var score = 0;
-        if (title.indexOf(query) >= 0) score += 10;
-        if (body.indexOf(query) >= 0) score += 1;
-        if (score > 0) hits.push({ page: page, score: score });
+
+        for (var i = 0; i < terms.length; i += 1) {
+          var inTitle = title.indexOf(terms[i]) >= 0;
+          var n = countOccurrences(body, terms[i]);
+          if (!inTitle && n === 0) return;
+          if (inTitle) score += 20;
+          // Capped: a long page repeating a common word must not outrank a
+          // short page that is actually about it.
+          score += Math.min(n, 8);
+        }
+
+        // Contiguous phrase is far stronger evidence than the same words apart.
+        if (terms.length > 1) {
+          if (title.indexOf(query) >= 0) score += 40;
+          else if (body.indexOf(query) >= 0) score += 15;
+        }
+
+        hits.push({ page: page, score: score });
       });
 
       hits.sort(function (a, b) { return b.score - a.score; });
@@ -244,10 +297,9 @@
 
       results.innerHTML = hits.map(function (hit) {
         var page = hit.page;
-        var source = page.description || page.content || '';
         return '<a class="docs-search__result" href="' + page.url + '">'
           + '<span class="docs-search__result-title">' + escapeHtml(page.title || 'Untitled') + '</span>'
-          + '<span class="docs-search__result-snippet">' + snippetFor(source, query) + '</span>'
+          + '<span class="docs-search__result-snippet">' + snippetFor(page, terms, query) + '</span>'
           + '</a>';
       }).join('');
       results.classList.add('is-open');
