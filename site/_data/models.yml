@@ -1,0 +1,99 @@
+##
+## Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+## Licensed under the MIT License.
+##
+# The official model matrix, rendered by site/docs/models/index.md.
+#
+# PLACEHOLDER DATA. The identifiers below are stand-ins. The real matrix is
+# eight LLMs and eight VLMs, but the names have not been cleared for
+# publication, so nothing identifying is committed here yet. Replace the `name`
+# fields (and add `hf` links) in a single change once the list is approved; the
+# page needs no edits.
+#
+# Keep the two lists in sync with site/_data/benchmarks.yml: every id that
+# appears in the lm_matrix suite must exist here, or the benchmark page will
+# render a row with no model behind it.
+
+llm:
+  - id: LLM-01
+    name: LLM-01
+    task: Text generation
+    precision: int4 weight-only, fp16 activations
+    status: Validated
+  - id: LLM-02
+    name: LLM-02
+    task: Text generation
+    precision: int4 weight-only, fp16 activations
+    status: Validated
+  - id: LLM-03
+    name: LLM-03
+    task: Text generation
+    precision: int4 weight-only, fp16 activations
+    status: Validated
+  - id: LLM-04
+    name: LLM-04
+    task: Text generation
+    precision: int4 weight-only, fp16 activations
+    status: Validated
+  - id: LLM-05
+    name: LLM-05
+    task: Code generation
+    precision: int4 weight-only, fp16 activations
+    status: Validated
+  - id: LLM-06
+    name: LLM-06
+    task: Text generation, mixture of experts
+    precision: int4 weight-only, fp16 activations
+    status: Validated
+  - id: LLM-07
+    name: LLM-07
+    task: Text generation, mixture of experts
+    precision: int4 weight-only, fp16 activations
+    status: Validated
+  - id: LLM-08
+    name: LLM-08
+    task: Text generation
+    precision: int4 weight-only, fp16 activations
+    status: Validated
+
+vlm:
+  - id: VLM-01
+    name: VLM-01
+    task: Image understanding
+    precision: int4 text decoder, fp16 vision encoder
+    status: Validated
+  - id: VLM-02
+    name: VLM-02
+    task: Image understanding
+    precision: int4 text decoder, fp16 vision encoder
+    status: Validated
+  - id: VLM-03
+    name: VLM-03
+    task: Image understanding
+    precision: int4 text decoder, fp16 vision encoder
+    status: Validated
+  - id: VLM-04
+    name: VLM-04
+    task: Image understanding, mixture of experts
+    precision: int4 text decoder, fp16 vision encoder
+    status: Validated
+  - id: VLM-05
+    name: VLM-05
+    task: Image understanding, mixture of experts
+    precision: int4 text decoder, fp16 vision encoder
+    status: Validated
+  - id: VLM-06
+    name: VLM-06
+    task: Image understanding
+    precision: int4 text decoder, fp16 vision encoder
+    status: Validated
+  - id: VLM-07
+    name: VLM-07
+    task: Image understanding
+    precision: int4 text decoder, fp16 vision encoder
+    status: New this release
+  - id: VLM-08
+    name: VLM-08
+    task: Image understanding
+    precision: int4 text decoder, fp16 vision encoder
+    status: New this release

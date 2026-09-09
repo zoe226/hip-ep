@@ -71,13 +71,17 @@ defaults:
       toc: true
 
 # ── Global header navigation ────────────────────────────────────────────────
-# Only pages that exist are listed. Models and Benchmarks are added here the
-# moment those sections land, so the published site never links into a 404.
+# Only pages that exist are listed, so the published site never links into a
+# 404. Tutorials is added here the moment that section lands.
 nav_links:
   - label: Docs
     url: "/docs/"
   - label: Quick Start
     url: "/docs/quickstart/"
+  - label: Models
+    url: "/docs/models/"
+  - label: Benchmarks
+    url: "/docs/benchmarks/"
 
 cta_links:
   - label: GitHub
@@ -97,8 +101,8 @@ cta_links:
 # reachable only by URL, and a listed-but-missing page is a live 404. Add an
 # entry in the same change that adds the page, never before.
 #
-# The remaining v1 sections (Models, Benchmarks, Tutorials) are added here as
-# they land. No label or URL may contain "|" -- see _layouts/docs.html.
+# The remaining v1 section (Tutorials) is added here as it lands. No label or
+# URL may contain "|" -- see _layouts/docs.html.
 docs_nav:
   - label: Overview
     url: "/docs/"
@@ -113,3 +117,9 @@ docs_nav:
         url: "/docs/quickstart/windows/"
       - label: Build from Source
         url: "/docs/quickstart/build/"
+
+  - label: Models
+    url: "/docs/models/"
+
+  - label: Benchmarks
+    url: "/docs/benchmarks/"
