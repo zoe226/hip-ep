@@ -14,9 +14,10 @@ Every command is safe to re-run. If you lose your shell, re-run
 Commands are **PowerShell**. Everything lands under `$HOME\hip-ep-runtime`;
 substitute a different directory if you like, but substitute it everywhere.
 
-Every command on this page was last run end to end on 2026-09-09, on a Ryzen AI
-Max (Radeon 8060S, `gfx1151`) running Windows 11 with driver `32.0.31035.1003`,
+Steps 1 through 7 were last run end to end on 2026-09-09, on a Ryzen AI Max
+(Radeon 8060S, `gfx1151`) running Windows 11 with driver `32.0.31035.1003`,
 against `{{ site.hip_ep_version }}`. The timings quoted below are from that run.
+Step 8 is verified only in part — see the note there.
 
 <div class="note" markdown="1">
 **Windows needs no separate ROCm install.** Unlike the Linux package, the
@@ -325,9 +326,30 @@ name the real problem:
   discovered next to `onnxruntime-genai.dll`, which is why everything must stay in
   `bin\`. The model's `provider_options` selects the AMD GPU umbrella:
   `[{ "AMDGPU": {"profile": "hip"} }]`.
+- **Leave `-e` alone.** Its accepted values are `cpu`, `cuda`, `dml` and
+  `NvTensorRtRtx` — there is no AMD entry, and the absence is not a mistake. The
+  default is `cpu`, and a run that leaves it at the default still executes on
+  hip-ep, because `provider_options` in the config is what selects the provider.
 - **`-ml -1` is usually required.** Without it, `model_benchmark` overrides the
   config's `search.max_length` with prompt + generation length, which breaks the
   fixed attention-mask shape a `prefill_*.onnx` / `decode_*.onnx` pair expects.
+  Conversely, on a dynamic-shape decoder whose config sets a very large
+  `search.max_length`, `-ml -1` is what you do *not* want: it sizes the KV cache
+  for that length.
+
+<div class="note note--warn" markdown="1">
+**What has and has not been checked here.** On the machine described at the top
+of this page, three of the claims above were confirmed directly: `--ep_library`
+is absent from `model_benchmark --help`; `-ml -1` is documented there as "use
+config file value"; and a run with no `-e` flag at all logged
+`Using backend: mlir-backend` from the EP, which is the provider being selected
+by `provider_options` and nothing else.
+
+The full prefill + decode pipeline and its timing output were **not** run — the
+only OGA model available was a vision-language one, which
+`model_benchmark` cannot drive (see troubleshooting below). Treat the command
+line above as correct in its flags and unverified in its output.
+</div>
 
 ## Troubleshooting
 
@@ -336,6 +358,19 @@ name the real problem:
 Either `-ml -1` is missing (see step 8), or `-l <prompt_length>` does not match
 the model's `model.decoder.fixed_prompt_length` in `genai_config.json`. Pass the
 value the config expects.
+
+**`Exception: Invalid rank for input: image_features  Got: 2  Expected: 3`**
+
+The model is multi-modal and `model_benchmark` cannot drive it. The message
+blames the model, but nothing is wrong with it: `model_benchmark` is a text-only
+harness, and it has no way to produce the image tensor a vision-language model's
+embedding graph expects. A `genai_config.json` with a `model.vision` section, or
+a directory containing `vision.onnx`, is the tell.
+
+This failure happens after the EP has already been selected and consulted, so it
+says nothing about your hip-ep installation. Benchmark a text-only OGA model
+instead, and drive multi-modal models through the ONNX Runtime GenAI API where
+you can supply images yourself.
 
 **`EP library not found: hipgpu.dll`**
 

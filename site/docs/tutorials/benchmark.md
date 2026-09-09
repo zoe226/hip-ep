@@ -106,6 +106,11 @@ repetitions. See
 [Run an LLM with GenAI]({{ '/docs/tutorials/genai-llm/' | relative_url }}) for
 what `-ml -1` is for and why omitting it breaks fixed-shape models.
 
+`model_benchmark` is text-only. Point it at a vision-language model and it fails
+with `Invalid rank for input: image_features`, which reads like a broken export
+but is really the harness having no image to supply. Drive multi-modal models
+through the GenAI API instead.
+
 Vary `-l` rather than only `-g` when you care about the shape of the curve.
 Time-to-first-token is dominated by prefill and grows with prompt length;
 tokens-per-second is dominated by memory bandwidth and degrades as the KV cache

@@ -371,6 +371,15 @@ Specific to OGA models with a fixed-shape prefill/decode pipeline. Pass `-ml -1`
 to `model_benchmark` so it keeps the `search.max_length` baked into
 `genai_config.json` instead of overriding it with prompt + generation length.
 
+**`Exception: Invalid rank for input: image_features  Got: 2  Expected: 3`**
+
+The model is multi-modal and `model_benchmark` cannot drive it. The message
+blames the model, but nothing is wrong with it: `model_benchmark` is a text-only
+harness with no way to produce the image tensor a vision-language model's
+embedding graph expects. A `genai_config.json` with a `model.vision` section, or
+a directory containing `vision.onnx`, is the tell. The failure comes after the EP
+has been selected, so it says nothing about your installation.
+
 **The first run appears to hang**
 
 It is compiling. A large model can take several minutes on the first inference.
