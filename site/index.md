@@ -29,16 +29,16 @@ description: >-
   <div class="section__inner">
     <div class="stat-row">
       <div class="stat">
-        <span class="stat__value">3</span>
-        <span class="stat__label">RDNA 3.5 GPUs in one Windows package</span>
-      </div>
-      <div class="stat">
-        <span class="stat__value">1.27.0</span>
-        <span class="stat__label">ONNX Runtime, pinned</span>
+        <span class="stat__value">16</span>
+        <span class="stat__label">Models validated every release</span>
       </div>
       <div class="stat">
         <span class="stat__value">MLIR</span>
         <span class="stat__label">Compiler pipeline, not an op library</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value">1.27.0</span>
+        <span class="stat__label">ONNX Runtime, pinned</span>
       </div>
       <div class="stat">
         <span class="stat__value">MIT</span>
@@ -128,10 +128,17 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
 </div>
 
     <p>
-      Anything not listed is a source build away, not a supported
-      configuration. The <a href="{{ '/docs/' | relative_url }}">overview</a>
-      covers what "supported" means here, including where tuned-library coverage
-      is narrower than kernel coverage.
+      A GPU that is not in this table is not a supported configuration. You can
+      still build for it — the build accepts any architecture the ROCm toolchain
+      handles — but nothing in CI exercises it.
+    </p>
+    <p>
+      One caveat inside the table: the Windows package carries GPU kernels for
+      all three RDNA 3.5 parts, but hipBLASLt and rocBLAS tuning data for
+      <code>gfx1151</code> only. Strix Point and Krackan Point run, and their
+      GEMM-heavy performance should be read as uncharacterized rather than
+      representative. The <a href="{{ '/docs/' | relative_url }}">overview</a>
+      goes through this in full.
     </p>
   </div>
 </section>
@@ -140,21 +147,36 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
   <div class="section__inner">
     <h2 class="headline-md">Start here</h2>
     <div class="card-grid">
-      <div class="card">
-        <p class="card__title"><a href="{{ '/docs/quickstart/' | relative_url }}">Quick Start</a></p>
+      <a class="card card--link" href="{{ '/docs/quickstart/' | relative_url }}">
+        <p class="card__title">Quick Start</p>
         <p class="card__body">From an empty machine to a model on the GPU, with
           a verification step that catches the silent CPU fallback.</p>
-      </div>
-      <div class="card">
-        <p class="card__title"><a href="{{ '/docs/' | relative_url }}">Overview</a></p>
+      </a>
+      <a class="card card--link" href="{{ '/docs/' | relative_url }}">
+        <p class="card__title">Overview</p>
         <p class="card__body">What hip-ep is, how a graph reaches the GPU, and
-          the two mistakes that account for most confusing first runs.</p>
-      </div>
-      <div class="card">
-        <p class="card__title"><a href="{{ '/docs/quickstart/build/' | relative_url }}">Build from Source</a></p>
-        <p class="card__body">The developer path, including the mock runtime for
-          working on the compiler without a GPU.</p>
-      </div>
+          the two behaviors that make a working setup look broken.</p>
+      </a>
+      <a class="card card--link" href="{{ '/docs/tutorials/' | relative_url }}">
+        <p class="card__title">Tutorials</p>
+        <p class="card__body">Serve an LLM, prove the GPU really ran it,
+          benchmark without fooling yourself, bring your own ONNX model.</p>
+      </a>
+      <a class="card card--link" href="{{ '/docs/models/' | relative_url }}">
+        <p class="card__title">Official models</p>
+        <p class="card__body">The 16 language and vision-language models
+          validated on every release, and what "int4" means here.</p>
+      </a>
+      <a class="card card--link" href="{{ '/docs/benchmarks/' | relative_url }}">
+        <p class="card__title">Benchmarks</p>
+        <p class="card__body">One snapshot per release — throughput and latency,
+          with the machine, the commands and the warm-up rules behind them.</p>
+      </a>
+      <a class="card card--link" href="{{ '/docs/quickstart/build/' | relative_url }}">
+        <p class="card__title">Build from Source</p>
+        <p class="card__body">For changing the compiler itself, or targeting a
+          GPU the release packages do not cover.</p>
+      </a>
     </div>
   </div>
 </section>

@@ -56,6 +56,9 @@ exclude:
   - Gemfile.lock
   - vendor
   - README.md
+  # Maintainer note on font provenance; the OFL texts beside it are published
+  # on purpose, since the license requires them to travel with the fonts.
+  - assets/fonts/README.md
 
 defaults:
   - scope:

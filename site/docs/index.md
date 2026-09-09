@@ -3,10 +3,10 @@ title: Overview
 description: What hip-ep is, how it executes an ONNX graph on an AMD GPU, and which page to read next.
 ---
 
-hip-ep is an **ONNX Runtime Execution Provider (EP)** for AMD GPUs. You do not
-run models *on* hip-ep the way you would run them on a standalone inference
-server — you register it with ONNX Runtime, and ONNX Runtime hands it the parts
-of your graph it can execute.
+hip-ep is an **ONNX Runtime Execution Provider (EP)** for AMD GPUs. It is not a
+standalone inference server and it has no API of its own. You register it with
+ONNX Runtime, and ONNX Runtime hands it whichever parts of your graph it can
+execute.
 
 That distinction shapes everything else on this site: if you already have an
 application that calls ONNX Runtime, adopting hip-ep is a deployment change
@@ -36,8 +36,8 @@ warm up is measuring the compiler, not the GPU.
 
 ## Two things that will bite you
 
-These are the two failure modes that account for most confusing first
-experiences, so they are stated once here rather than buried.
+Both of these produce symptoms that look like something else entirely, so they
+are stated up front rather than left for a troubleshooting page.
 
 <div class="note note--warn" markdown="1">
 **A build must target the architecture of the GPU that will run it.** A
@@ -55,9 +55,9 @@ compilation failures to be loud.
 
 ## Supported hardware
 
-The published release assets are the authoritative statement of what ships. The
-table below is a reading of the `{{ site.hip_ep_version }}` packages, and the
-two platforms do not cover the same set of GPUs.
+The table below is what the `{{ site.hip_ep_version }}` packages actually
+contain, checked by unpacking them. The two platforms do not cover the same set
+of GPUs.
 
 | GPU | Architecture | Linux package | Windows package |
 |---|---|---|---|
@@ -74,18 +74,19 @@ built for `gfx1151` only.
 **Tuned-library coverage is narrower than kernel coverage.** The Windows package
 ships hipBLASLt and rocBLAS tuning data for `gfx1151` only. `gfx1150` and
 `gfx1152` run, but GEMM-heavy models on those parts are not running against
-tuning data selected for them, so treat their performance as uncharacterised
+tuning data selected for them, so treat their performance as uncharacterized
 rather than representative.
 </div>
 
-Anything not listed is a source build away, not a supported configuration.
-`build.py` accepts `--hip_arch <gfx-arch>` for any architecture the underlying
-ROCm toolchain supports, but only the rows above are validated.
+A GPU that is not in that table is not a supported configuration. You can still
+try it — `build.py --hip_arch <gfx-arch>` accepts any architecture the ROCm
+toolchain supports, and it may well work — but nothing in CI exercises it, so a
+failure there is not something we can act on.
 
 ## What ROCm you need
 
-This differs by platform, and getting it wrong is the most common reason a first
-run fails.
+This differs sharply by platform — one side needs nothing, the other needs a
+whole ROCm installation you provide yourself.
 
 - **Windows — nothing to install.** The package is self-contained: alongside the
   EP it bundles the HIP runtime (`amdhip64_7.dll`), the code-object manager, the
@@ -107,8 +108,12 @@ specific ABI.
 | Component | Version |
 |---|---|
 | hip-ep | `{{ site.hip_ep_version }}` |
-| ONNX Runtime | 1.27.0 |
-| ONNX Runtime GenAI (OGA) | 0.14.0, plus [PR 2194](https://github.com/microsoft/onnxruntime-genai/pull/2194) |
+| ONNX Runtime | `1.27.0` |
+| ONNX Runtime GenAI (OGA) | `0.14.0` |
+
+The OGA build also carries
+[PR 2194](https://github.com/microsoft/onnxruntime-genai/pull/2194), which is
+not in the `0.14.0` release, so a stock `0.14.0` is not equivalent.
 
 The full dependency set — LLVM/MLIR/LLD, protobuf, flatbuffers, ONNX Runtime,
 TheRock ROCm — is pinned in [`cmake/deps.txt`]({{ site.repo_url }}/blob/main/cmake/deps.txt),
@@ -118,19 +123,28 @@ disagree.
 ## Where to go next
 
 <div class="card-grid" markdown="0">
-  <div class="card">
+  <a class="card card--link" href="{{ '/docs/quickstart/' | relative_url }}">
     <p class="card__title">Just want to run a model</p>
-    <p class="card__body">Download a release package and run your first
-      inference. No compiler required.</p>
-  </div>
-  <div class="card">
+    <p class="card__body">Quick Start. Download a release package, pick your
+      platform, get one inference on the GPU. No compiler required.</p>
+  </a>
+  <a class="card card--link" href="{{ '/docs/tutorials/' | relative_url }}">
+    <p class="card__title">Already running, want more</p>
+    <p class="card__body">Tutorials. Serve an LLM, prove the GPU really ran it,
+      benchmark honestly, and bring a model of your own.</p>
+  </a>
+  <a class="card card--link" href="{{ '/docs/quickstart/build/' | relative_url }}">
     <p class="card__title">Want to change the compiler</p>
     <p class="card__body">Build from source. Budget several hours for the first
-      build — LLVM is built from source.</p>
-  </div>
+      build — LLVM is compiled along with it.</p>
+  </a>
 </div>
 
-- [Quick Start]({{ '/docs/quickstart/' | relative_url }}) — pick your platform and get one model running.
-- [Build from Source]({{ '/docs/quickstart/build/' | relative_url }}) — the developer path.
-- [Supported operations]({{ site.repo_url }}/blob/main/docs/supported-operations.md) — which ONNX ops the compiler handles today.
-- [Design documentation]({{ site.repo_url }}/tree/main/docs/design) — pass ordering, the compiler/runtime ABI, memory planning.
+Also worth knowing:
+[Official models]({{ '/docs/models/' | relative_url }}) and
+[Benchmarks]({{ '/docs/benchmarks/' | relative_url }}) cover what is validated
+each release and how fast it runs;
+[supported operations]({{ site.repo_url }}/blob/main/docs/supported-operations.md)
+lists which ONNX operations the compiler handles today; and the
+[design documentation]({{ site.repo_url }}/tree/main/docs/design) covers pass
+ordering, the compiler/runtime ABI and memory planning.

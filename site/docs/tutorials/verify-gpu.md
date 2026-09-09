@@ -13,7 +13,7 @@ declared, ORT runs the whole graph on the CPU and returns **numerically correct
 results**. Nothing in the output distinguishes that from a successful GPU run.
 
 So you have to check on purpose. Here are three independent checks, cheapest
-first, plus the environment variable whose behaviour does not match its name.
+first, plus the environment variable whose behavior does not match its name.
 
 ## Check 1 — Make compilation failures fatal
 
@@ -32,7 +32,7 @@ successful run was on the CPU, and the error you now see is the real one that
 was being swallowed.
 
 **What it actually does:** when the MLIR pass pipeline fails to compile a graph
-hip-ep has claimed, the default behaviour is to return failure quietly and let
+hip-ep has claimed, the default behavior is to return failure quietly and let
 ORT fall back. With the variable set, the process calls `abort()` instead, and
 the crash handler prints a backtrace pointing at the failing pass.
 

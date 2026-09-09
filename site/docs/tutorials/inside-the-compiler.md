@@ -88,7 +88,7 @@ Four companion variables shape the output:
 |---|---|
 | `HIPDNN_EP_IR_DUMP_TREE` | One file per pass, under the dump path as a **directory**: `<idx>_<pass-name>.mlir`. Usually under 1 MB each, versus a multi-megabyte monolith. Start here. |
 | `HIPDNN_EP_IR_DUMP_AFTER_ONLY` | Suppress the "before" dump for each pass. Roughly halves the size while keeping every change visible. |
-| `HIPDNN_EP_IR_DUMP_SINGLE` | Restore legacy single-file behaviour — no counter, overwritten each compile. |
+| `HIPDNN_EP_IR_DUMP_SINGLE` | Restore legacy single-file behavior — no counter, overwritten each compile. |
 | `HIPDNN_EP_PIPELINE` | Override the pass pipeline entirely. |
 
 Tree mode disables multithreading in the MLIR context so the files come out in a

@@ -122,7 +122,7 @@ hip-onnx-runner -m your_model.onnx -f sequence_length:512 -f batch_size:1
 `--free-dim` is repeatable and also accepts a comma-separated list. Note what it
 deliberately does *not* do: it does not substitute the dimension into the graph
 before the EP sees it. hip-ep still compiles the dynamic, symbolic graph; the
-value only sizes the input tensors at run time. That is the behaviour you want
+value only sizes the input tensors at run time. That is the behavior you want
 when testing, because it matches what a real dynamic-shape deployment does.
 
 **Wrong GPU architecture.** A package or build targeting a different

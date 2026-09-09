@@ -18,11 +18,15 @@ Licensed under the MIT License.
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
-    rel="stylesheet">
+  {%- comment -%}
+    Fonts are self-hosted (see assets/fonts/README.md). Preloaded because they
+    are declared inside styles.css, so the browser would otherwise not discover
+    them until the stylesheet has been parsed.
+  {%- endcomment -%}
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="{{ '/assets/fonts/space-grotesk-var.woff2' | relative_url }}">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="{{ '/assets/fonts/ibm-plex-mono-400.woff2' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/styles.css' | relative_url }}?v={{ site.time | date: '%s' }}">
 
   <!--
