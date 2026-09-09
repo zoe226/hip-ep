@@ -72,12 +72,14 @@ defaults:
 
 # ── Global header navigation ────────────────────────────────────────────────
 # Only pages that exist are listed, so the published site never links into a
-# 404. Tutorials is added here the moment that section lands.
+# 404.
 nav_links:
   - label: Docs
     url: "/docs/"
   - label: Quick Start
     url: "/docs/quickstart/"
+  - label: Tutorials
+    url: "/docs/tutorials/"
   - label: Models
     url: "/docs/models/"
   - label: Benchmarks
@@ -101,8 +103,7 @@ cta_links:
 # reachable only by URL, and a listed-but-missing page is a live 404. Add an
 # entry in the same change that adds the page, never before.
 #
-# The remaining v1 section (Tutorials) is added here as it lands. No label or
-# URL may contain "|" -- see _layouts/docs.html.
+# No label or URL may contain "|" -- see _layouts/docs.html.
 docs_nav:
   - label: Overview
     url: "/docs/"
@@ -117,6 +118,21 @@ docs_nav:
         url: "/docs/quickstart/windows/"
       - label: Build from Source
         url: "/docs/quickstart/build/"
+
+  - label: Tutorials
+    children:
+      - label: Overview
+        url: "/docs/tutorials/"
+      - label: Run an LLM with GenAI
+        url: "/docs/tutorials/genai-llm/"
+      - label: Prove the GPU ran it
+        url: "/docs/tutorials/verify-gpu/"
+      - label: Benchmark your own model
+        url: "/docs/tutorials/benchmark/"
+      - label: Bring your own ONNX model
+        url: "/docs/tutorials/bring-your-own-model/"
+      - label: Look inside the compiler
+        url: "/docs/tutorials/inside-the-compiler/"
 
   - label: Models
     url: "/docs/models/"
