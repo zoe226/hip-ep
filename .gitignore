@@ -171,6 +171,11 @@ build.*/
 # workflow writes it, so a local build and CI produce identical layouts.
 /_site/
 site/.jekyll-cache/
+# The repository-wide `models/` rule above is for downloaded model files. It
+# also matches site/docs/models/, which is a documentation page, so that
+# directory is re-included explicitly. Without this, `git add site` silently
+# skips the page and the site ships a nav entry pointing at a 404.
+!site/docs/models/
 site/.jekyll-metadata
 site/vendor/
 site/.bundle/
