@@ -84,6 +84,17 @@ irm {{ site.url }}{{ site.baseurl }}/assets/deploy-strix-halo.ps1 -OutFile deplo
       the three blocking the release.
     </p>
 
+    <div class="badge-row">
+      <span class="badge">Text generation</span>
+      <span class="badge">Code generation</span>
+      <span class="badge">Vision-language</span>
+      <span class="badge">Speech recognition</span>
+      <span class="badge">Image classification</span>
+      <span class="badge">Object detection</span>
+      <span class="badge">BEV perception</span>
+      <span class="badge">Sparse mixture of experts</span>
+    </div>
+
     <div class="model-grid">
       {%- for m in llm_hi %}
       {% include model-card.html m=m kind="LLM" %}
@@ -105,9 +116,9 @@ irm {{ site.url }}{{ site.baseurl }}/assets/deploy-strix-halo.ps1 -OutFile deplo
   <div class="section__inner">
     <h2 class="headline-md">From download to inference</h2>
     <p class="lede">
-      On Windows the release package is self-contained — the HIP runtime,
-      hipBLASLt, rocBLAS and MIOpen all ship with it. Nothing is compiled,
-      nothing is installed system-wide, and no administrator rights are needed.
+      Two routes to the same working install, and neither of them is the
+      recommended one: run the script if you want the machine ready, follow the
+      Quick Start if you want to see what each step does.
     </p>
 
     <div class="split">
@@ -154,9 +165,8 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
         </p>
         <p>
           Both platforms are written out a command at a time, each with the
-          result to expect, and both end by checking that the graph ran where
-          you think it did. ONNX Runtime falls back to the CPU silently and
-          still returns correct answers, so that check is the point.
+          result to expect, so a step that goes wrong is caught where it goes
+          wrong rather than three commands later.
         </p>
         <div class="btn-row">
           <a class="btn btn--ghost" href="{{ '/docs/quickstart/windows/' | relative_url }}">Windows Quick Start</a>
@@ -164,10 +174,94 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
         </div>
       </div>
     </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <p class="card__title">Self-contained on Windows</p>
+        <p class="card__body">
+          The HIP runtime, hipBLASLt, rocBLAS and MIOpen are all in the package.
+          No ROCm installation, no change to the system <code>PATH</code>, no
+          administrator rights, and uninstalling is deleting the directory.
+        </p>
+      </div>
+      <div class="card">
+        <p class="card__title">An execution provider, not a runtime</p>
+        <p class="card__body">
+          There is no new inference API to learn and no model server in the
+          middle. The ONNX Runtime calls you already make stay as they are;
+          hip-ep registers alongside the other providers and claims the parts
+          of the graph it can compile.
+        </p>
+      </div>
+      <div class="card">
+        <p class="card__title">Compiles on the machine it runs on</p>
+        <p class="card__body">
+          Compilation happens in-process, against the GPU actually in front of
+          it. Nothing is fetched at inference time, so once the package is on
+          disk the whole path works with the network unplugged.
+        </p>
+      </div>
+    </div>
   </div>
 </section>
 
 <section class="section">
+  <div class="section__inner">
+    <p class="kicker">Verification</p>
+    <h2 class="headline-md">Proof, not assumption</h2>
+    <p class="lede">
+      ONNX Runtime does not fail when a provider cannot take your graph. It
+      quietly runs that part on the CPU and returns correct answers — so an
+      install where the GPU is doing nothing at all looks exactly like one that
+      works, only slower. Every path on this site ends by ruling that out, and
+      neither way of doing it needs you to know how fast the model should have
+      been.
+    </p>
+
+    <div class="split">
+      <div class="split__col">
+        <p class="split__label">Turn the fallback into a failure</p>
+
+<div class="prose" markdown="1">
+```powershell
+$env:HIPDNN_EP_STRICT = "1"
+hip-onnx-runner.exe -m your-model.onnx
+```
+</div>
+
+        <p>
+          A subgraph the compiler cannot handle now stops the run at the pass
+          that gave up, with the operator named, rather than disappearing into
+          the CPU provider. It is a validation switch, not a production one —
+          unset it before you measure anything.
+        </p>
+      </div>
+
+      <div class="split__col">
+        <p class="split__label">Or ask the provider what it chose</p>
+
+<div class="prose" markdown="1">
+```text
+morphizen-ep.cpp:344] Using backend: mlir-backend
+```
+</div>
+
+        <p>
+          Set <code>MORPHIZEN_DEBUG_MORPHIZEN_EP=1</code> and the EP logs the
+          backend it selected. That line is direct attribution — it is the
+          provider saying what it did, not a conclusion drawn from a stopwatch.
+        </p>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <a class="btn btn--primary" href="{{ '/docs/tutorials/verify-gpu/' | relative_url }}">Prove the GPU ran it</a>
+      <a class="btn btn--ghost" href="{{ '/docs/tutorials/benchmark/' | relative_url }}">Benchmark without fooling yourself</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section--alt">
   <div class="section__inner">
     <h2 class="headline-md">A compiler, not an operator library</h2>
     <p class="lede">
@@ -219,7 +313,7 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
   </div>
 </section>
 
-<section class="section section--alt">
+<section class="section">
   <div class="section__inner">
     <h2 class="headline-md">Supported hardware</h2>
 
@@ -250,7 +344,7 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
   </div>
 </section>
 
-<section class="section">
+<section class="section section--alt">
   <div class="section__inner">
     <h2 class="headline-md">Start here</h2>
     <div class="card-grid">
@@ -285,5 +379,12 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
           GPU the release packages do not cover.</p>
       </a>
     </div>
+    <p>
+      Something here wrong, missing, or contradicted by your own machine? The
+      compiler, the runtime, the kernels and this site are all in
+      <a href="{{ site.repo_url }}">one MIT-licensed repository</a> — open an
+      <a href="{{ site.repo_url }}/issues">issue</a>, including the case where
+      the documentation is what is broken.
+    </p>
   </div>
 </section>

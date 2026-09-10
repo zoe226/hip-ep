@@ -454,6 +454,11 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
   font-family: var(--font-mono); font-size: .72rem; letter-spacing: .02em;
   border: 1px solid var(--border-strong); color: var(--text-muted); white-space: nowrap;
 }
+/* A row of capability chips. Sized up from a table badge because here the row
+   is doing the work of a sentence rather than annotating a cell. */
+.badge-row { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.5rem; }
+.badge-row .badge { padding: .3rem .7rem; font-size: var(--step--1); }
+
 .badge--ok { color: var(--ok); border-color: var(--ok); background: var(--ok-soft); }
 .badge--warn { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); }
 .badge--planned { color: var(--text-faint); }
