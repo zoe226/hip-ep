@@ -24,24 +24,10 @@ description: >-
       </p>
       <div class="btn-row">
         <a class="btn btn--primary" href="{{ '/docs/quickstart/' | relative_url }}">Get started</a>
+        <a class="btn btn--ghost" href="{{ '/models/' | relative_url }}">Models</a>
+        <a class="btn btn--ghost" href="{{ '/docs/benchmarks/' | relative_url }}">Benchmarks</a>
         <a class="btn btn--ghost" href="{{ site.repo_url }}/releases/tag/{{ site.hip_ep_version }}">Download {{ site.hip_ep_version }}</a>
-        <a class="btn btn--ghost" href="{{ site.repo_url }}">View on GitHub</a>
       </div>
-
-<div class="prose hero__cmd" markdown="1">
-```powershell
-irm {{ site.url }}{{ site.baseurl }}/assets/deploy-strix-halo.ps1 -OutFile deploy.ps1
-.\deploy.ps1
-```
-</div>
-
-      <p class="hero__cmd-note">
-        Windows on a Ryzen AI Max. Installs the release package, then proves the
-        GPU executed a model rather than assuming it.
-        <a href="{{ '/docs/quickstart/deploy-script/' | relative_url }}">What this script does</a>
-        &middot;
-        <a href="{{ '/docs/quickstart/' | relative_url }}">Other platforms</a>
-      </p>
     </div>
 
     {%- comment -%}
@@ -308,20 +294,26 @@ morphizen-ep.cpp:344] Using backend: mlir-backend
 </section>
 
 <section class="section section--alt">
-  <div class="section__inner">
+  <div class="section__inner section__inner--narrow">
     <h2 class="headline-md">Supported hardware</h2>
 
 <div class="prose" markdown="1">
 
-| GPU | Architecture | Linux | Windows |
-|---|---|---|---|
-| Ryzen AI Max ("Strix Halo") | `gfx1151` | Package | Package |
-| Ryzen AI ("Strix Point") | `gfx1150` | Source | Package |
-| Ryzen AI ("Krackan Point") | `gfx1152` | Source | Package |
-| Instinct MI350X | `gfx950` | Source | — |
+| GPU | Architecture |
+|---|---|
+| Ryzen AI Max ("Strix Halo") | `gfx1151` |
+| Ryzen AI ("Strix Point") | `gfx1150` |
+| Ryzen AI ("Krackan Point") | `gfx1152` |
+| Instinct MI350X | `gfx950` |
 
 </div>
 
+    <p>
+      All three Ryzen AI parts have a prebuilt Windows package. On Linux the
+      package covers Ryzen AI Max, and the rest are a source build; MI350X is
+      Linux only. The <a href="{{ '/docs/quickstart/' | relative_url }}">Quick
+      Start</a> starts from whichever of the two applies to you.
+    </p>
     <p>
       A GPU that is not in this table is not a supported configuration. You can
       still build for it — the build accepts any architecture the ROCm toolchain

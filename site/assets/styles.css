@@ -185,25 +185,33 @@ img { max-width: 100%; height: auto; }
 }
 .site-header__inner {
   width: min(100% - 2.5rem, var(--maxw)); margin-inline: auto;
-  display: flex; align-items: center; gap: 1.5rem; height: 62px;
+  display: flex; align-items: center; gap: 1.75rem; height: 68px;
 }
-.brand { display: inline-flex; align-items: baseline; gap: .3rem; font-weight: 700; letter-spacing: -.02em; color: var(--text); }
+.brand {
+  display: inline-flex; align-items: center; gap: .4rem; flex: none;
+  font-weight: 700; font-size: var(--step-1); letter-spacing: -.02em; color: var(--text);
+}
 .brand:hover { text-decoration: none; }
 .brand__mark { color: var(--accent); }
 .brand__name { color: var(--text); }
 /* This is an AMD project and the lockup is the only place that says so above
-   the fold. Set in text rather than as a logo asset: the mark has usage rules
-   this site is not in a position to apply correctly, and the hairline is enough
-   to keep "AMD" from reading as part of the product name. */
-.brand__org { font-size: .82em; letter-spacing: .06em; color: var(--text-muted); }
+   the fold. The hairline is what keeps the wordmark from reading as the first
+   syllable of the product name. */
+.brand__org { display: inline-flex; align-items: center; gap: .45rem; color: var(--text); }
 .brand__org::after {
-  content: ""; display: inline-block; width: 1px; height: .85em;
-  margin-left: .3rem; vertical-align: -.08em; background: var(--border-strong);
+  content: ""; width: 1px; height: 1.15em; background: var(--border-strong);
 }
+/* Sized by height, not width: the cropped viewBox makes the height the height
+   of the mark itself, so it stays optically level with the type beside it
+   however the type scale moves. */
+.brand__logo { height: .82em; width: auto; display: block; }
 
-.site-nav { display: flex; gap: 1.4rem; margin-right: auto; }
-.site-nav__link { color: var(--text-muted); font-weight: 500; font-size: var(--step--1); }
-.site-nav__link:hover { color: var(--text); text-decoration: none; }
+/* Full-size, full-contrast nav type. The links are the primary way around the
+   site, and set a step down in muted grey they read as fine print next to the
+   brand rather than as the site's own table of contents. */
+.site-nav { display: flex; gap: 1.5rem; margin-right: auto; }
+.site-nav__link { color: var(--text); font-weight: 600; font-size: var(--step-0); letter-spacing: -.01em; }
+.site-nav__link:hover { color: var(--accent); text-decoration: none; }
 
 .site-header__actions { display: flex; align-items: center; gap: .55rem; }
 .site-header__cta {
@@ -228,6 +236,13 @@ html[data-theme="light"] .theme-toggle__icon--light { display: none; }
 
 .site-nav-mobile { display: none; flex-direction: column; padding: .5rem 1.25rem 1rem; border-top: 1px solid var(--border); }
 .site-nav-mobile__link { padding: .55rem 0; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+
+/* The nav is now set at body size, so it needs the room the three external CTAs
+   were using before the hamburger takes over. Nothing is lost: every one of
+   them is in the footer, and in the mobile menu below 860px. */
+@media (max-width: 1080px) {
+  .site-header__cta { display: none; }
+}
 
 @media (max-width: 860px) {
   .site-nav, .site-header__cta { display: none; }
@@ -433,24 +448,10 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
 .hero .lede { max-width: 56ch; }
 .hero .btn-row { margin-top: 1.75rem; }
 
-/* One runnable command in the hero, so the page answers "how do I start" before
-   the first scroll. Set a step smaller than a body code block: the hero column
-   is roughly half the page now that the deck sits beside it, and the download
-   URL is long enough that the default size would put a scrollbar under the
-   fold-line command of all things. */
-.hero__cmd { margin-top: 1.75rem; }
-.hero__cmd div.highlight { margin-bottom: 0; }
-.hero__cmd code { font-size: .8rem; }
-.hero__cmd-note {
-  max-width: 78ch; margin: .65rem 0 0;
-  font-size: var(--step--1); color: var(--text-muted);
-}
-
-/* Headline on the left, feature deck on the right. The columns are `minmax(0,
-   ...)` because the left one contains a code block, and a grid track sized to
-   min-content would let that block push the whole row wider than the page.
-   Below 960px the deck moves under the headline rather than shrinking: at that
-   width it would be narrower than the shortest slide title. */
+/* Headline on the left, feature deck on the right. `minmax(0, ...)` on both
+   tracks so neither can be sized by its content and push the row wider than the
+   page. Below 960px the deck moves under the headline rather than shrinking: at
+   that width it would be narrower than the shortest slide title. */
 .hero__grid {
   display: grid; gap: 2.5rem 3rem; align-items: center;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
