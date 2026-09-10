@@ -6,7 +6,11 @@ Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
 Licensed under the MIT License.
 {%- endcomment -%}
 
-{% if page.permalink == '/' %}
+{%- comment -%}
+The landing page and any page opting in with `full_width: true` lay out their
+own <section> elements. Everything else gets the narrow prose column.
+{%- endcomment -%}
+{% if page.permalink == '/' or page.full_width %}
 {{ content }}
 {% else %}
 <section class="section">

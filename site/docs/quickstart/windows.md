@@ -14,6 +14,11 @@ Every command is safe to re-run. If you lose your shell, re-run
 Commands are **PowerShell**. Everything lands under `$HOME\hip-ep-runtime`;
 substitute a different directory if you like, but substitute it everywhere.
 
+If you would rather not follow it by hand, steps 1 through 6 are also available
+as a single script: [One-command deploy]({{ '/docs/quickstart/deploy-script/' | relative_url }}).
+It covers `gfx1151` only. Read this page anyway when something goes wrong — the
+script's checks are these checks.
+
 Steps 1 through 7 were last run end to end on 2026-09-09, on a Ryzen AI Max
 (Radeon 8060S, `gfx1151`) running Windows 11 with driver `32.0.31035.1003`,
 against `{{ site.hip_ep_version }}`. The timings quoted below are from that run.
@@ -255,9 +260,16 @@ Dump directories are named from the model file's stem, so with a model of your
 own the two directories are `<stem>_o_dump` and `<stem>_cpu_o_dump`. The names
 differ, so the second command does not overwrite the first.
 
-Expected: a small L2 norm — `0.0239186` for this model on a Ryzen AI Max. Exact
-bit equality is not expected and not a goal — the GPU path uses different kernels
-and a different accumulation order.
+Expected: a small L2 norm, on the order of `0.02` for this model on a Ryzen AI
+Max. Exact bit equality is not expected and not a goal — the GPU path uses
+different kernels and a different accumulation order.
+
+Read the magnitude, not the digits. Three runs of this check on the same machine,
+with the same driver, the same package and byte-identical `smoke.onnx`, produced
+`0.0239186`, `0.0234262` and `0.0217464` — a spread of about 10%, because the
+GEMM library does not have to pick the same algorithm every time. So treat
+anything in the same order of magnitude as a pass. A result in the ones, or a
+non-finite one, is a real failure and worth stopping on.
 
 ## Step 7 — Measure something real {#step-7}
 
@@ -292,12 +304,12 @@ available as a same-machine baseline:
 ```
 
 <div class="note" markdown="1">
-**Expect DML to win this particular comparison, and do not read anything into
-it.** On the same machine DML measures about `0.048 ms` — some 3.4× faster than
-hip-ep on `smoke.onnx`. That model is three nodes over a 512×512 matrix,
-deliberately small enough to be generated inline in step 4, and at that size
-launch and dispatch overhead is nearly all of the measurement. It is a check that
-the toolchain works end to end, not a workload. Draw performance conclusions from
+**Do not read anything into how this comparison comes out.** `smoke.onnx` is
+three nodes over a 512×512 matrix, deliberately small enough to be generated
+inline in step 4, and at that size launch and dispatch overhead is nearly all of
+the measurement — whichever provider wins, the number is measuring overhead
+rather than the model. It is a check that the toolchain works end to end, not a
+workload. Draw performance conclusions from
 [the benchmarks]({{ '/docs/benchmarks/' | relative_url }}) or from a model of
 your own at a realistic size.
 </div>
@@ -316,11 +328,11 @@ EP is chosen by the model's own `genai_config.json`, not by a command-line flag:
 
 ```powershell
 Set-Location "$env:HIPEP_ROOT\bin"
-.\model_benchmark.exe -i C:\path\to\oga-model-dir -l 128 -g 32 -ml -1 -r 5 -w 1
+.\model_benchmark.exe -i C:\path\to\oga-model-dir -l 128 -g 32 -r 5 -w 1
 ```
 
-Two things about this command are non-obvious and both cause errors that do not
-name the real problem:
+Three things about this command are non-obvious, and each causes an error that
+does not name the real problem:
 
 - **Do not pass `--ep_library`.** Upstream `model_benchmark` rejects it. The EP is
   discovered next to `onnxruntime-genai.dll`, which is why everything must stay in
@@ -330,28 +342,92 @@ name the real problem:
   `NvTensorRtRtx` — there is no AMD entry, and the absence is not a mistake. The
   default is `cpu`, and a run that leaves it at the default still executes on
   hip-ep, because `provider_options` in the config is what selects the provider.
-- **`-ml -1` is usually required.** Without it, `model_benchmark` overrides the
-  config's `search.max_length` with prompt + generation length, which breaks the
-  fixed attention-mask shape a `prefill_*.onnx` / `decode_*.onnx` pair expects.
-  Conversely, on a dynamic-shape decoder whose config sets a very large
-  `search.max_length`, `-ml -1` is what you do *not* want: it sizes the KV cache
-  for that length.
+- **`-ml -1` depends on the model, so decide it deliberately.** It means "use the
+  config file's `search.max_length`". A `prefill_*.onnx` / `decode_*.onnx` pair
+  with a fixed attention-mask shape needs it — without it `model_benchmark`
+  overrides `search.max_length` with prompt + generation length and the shapes no
+  longer match. A dynamic-shape decoder is the opposite case: the command above
+  omits `-ml -1` because that model's config sets `search.max_length: 32768`, and
+  honouring it would size the KV cache for 32768 tokens to generate 32.
+
+A successful run reports four blocks — prompt processing, token generation,
+token sampling and end-to-end — in this shape:
+
+```text
+Batch size: 1, prompt tokens: 128, tokens to generate: 32
+Prompt processing (time to first token):
+	avg (us):       <n>         avg (tokens/s): <n>
+	p50 (us):       <n>         stddev (us):    <n>         n: 5 * 128 token(s)
+Token generation:
+	avg (us):       <n>         avg (tokens/s): <n>
+	p50 (us):       <n>         stddev (us):    <n>         n: 155 * 1 token(s)
+Token sampling:
+	avg (us):       <n>         avg (tokens/s): <n>
+E2E generation (entire generation loop):
+	avg (ms):       <n>         p50 (ms): <n>       stddev (ms): <n>        n: 5
+Peak working set size (bytes): <n>
+```
+
+Two of those are the ones to read: **time to first token** under prompt
+processing, and **token generation** in tokens per second. Compare them against
+[the benchmark page]({{ '/docs/benchmarks/' | relative_url }}) for the same model
+and prompt length. Landing within a few percent is the useful check — a working
+install reproduces published numbers, and one that has quietly fallen back to
+something else does not come close.
 
 <div class="note note--warn" markdown="1">
-**What has and has not been checked here.** On the machine described at the top
-of this page, three of the claims above were confirmed directly: `--ep_library`
-is absent from `model_benchmark --help`; `-ml -1` is documented there as "use
-config file value"; and a run with no `-e` flag at all logged
-`Using backend: mlir-backend` from the EP, which is the provider being selected
-by `provider_options` and nothing else.
+Those reference numbers are not published yet, so that comparison cannot be made
+from this site today. Until they are, rely on the provider check below, which is
+direct evidence and does not depend on any number.
+</div>
 
-The full prefill + decode pipeline and its timing output were **not** run — the
-only OGA model available was a vision-language one, which
-`model_benchmark` cannot drive (see troubleshooting below). Treat the command
-line above as correct in its flags and unverified in its output.
+<div class="note" markdown="1">
+**Confirm the provider rather than inferring it from speed.** Setting
+`MORPHIZEN_DEBUG_MORPHIZEN_EP=1` makes the EP log the backend it selected:
+
+```text
+morphizen-ep.cpp:344] Using backend: mlir-backend
+```
+
+That line is the direct evidence. Do not benchmark with it set.
 </div>
 
 ## Troubleshooting
+
+**An OGA model downloaded from Hugging Face runs, but not on hip-ep**
+
+Check `provider_options` in its `genai_config.json`. Published ONNX artifacts for
+Windows are commonly built for DirectML and ship:
+
+```json
+"provider_options": [ { "dml": {} } ]
+```
+
+Nothing about that is an error — it is a different provider's config — but it is
+what selects the provider, so hip-ep never sees the graph. Replace it with:
+
+```json
+"provider_options": [ { "AMDGPU": { "profile": "hip" } } ]
+```
+
+Keep a copy of the original first. The rest of the config carries over unchanged.
+
+**`Exception: Error encountered while parsing genai_config.json  JSON Error: Unknown value "" at line 1 index 1`**
+
+The file has a UTF-8 byte-order mark and OGA's parser will not accept one. This
+is easy to introduce by accident while making the edit above: PowerShell 5.1's
+`Set-Content -Encoding utf8` writes a BOM, as does Notepad's "UTF-8" (choose
+"UTF-8 without BOM"). The message points at index 1 of line 1 because the three
+BOM bytes sit in front of the opening brace.
+
+To rewrite the file without one:
+
+```powershell
+[IO.File]::WriteAllText($path, $text, (New-Object Text.UTF8Encoding($false)))
+```
+
+To check: `Get-Content $path -Encoding Byte -TotalCount 3` should be `123 13 10`
+(`{`, CR, LF), not `239 187 191`.
 
 **`Got invalid dimensions for input: attention_mask  Got: X  Expected: Y`**
 

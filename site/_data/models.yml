@@ -2,98 +2,275 @@
 ## Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
 ## Licensed under the MIT License.
 ##
-# The official model matrix, rendered by site/docs/models/index.md.
+# The official model matrix, rendered by site/docs/models/index.md and by
+# site/models.md, and used by site/docs/benchmarks/index.md to resolve the
+# display name for every benchmark row.
 #
-# PLACEHOLDER DATA. The identifiers below are stand-ins. The real matrix is
-# eight LLMs and eight VLMs, but the names have not been cleared for
-# publication, so nothing identifying is committed here yet. Replace the `name`
-# fields (and add `hf` links) in a single change once the list is approved; the
-# page needs no edits.
+# `id` is the join key. Every id used in site/_data/benchmarks.yml must exist
+# here, or that row renders with a bare slug and no model behind it.
 #
-# Keep the two lists in sync with site/_data/benchmarks.yml: every id that
-# appears in the lm_matrix suite must exist here, or the benchmark page will
-# render a row with no model behind it.
+# `name` is the base model, not the artifact. The quantized ONNX exports the
+# validation suite actually runs live in AMD-owned Hugging Face repositories
+# that are not all public, so naming the base model plus the quantization is
+# both accurate and linkable. `hf` is the base model's repository.
+#
+# `highlight: true` promotes a model onto the card wall at /models/. Keep that
+# set small -- it is a showcase, not a second copy of the matrix.
 
 llm:
-  - id: LLM-01
-    name: LLM-01
-    task: Text generation
-    precision: int4 weight-only, fp16 activations
+  - id: gpt-oss-20b
+    name: GPT-OSS 20B
+    hf: openai/gpt-oss-20b
+    params: 20B total, 3.6B active
+    arch: Sparse mixture of experts
+    task: Text generation, reasoning
+    precision: int4 RTN, block 32
     status: Validated
-  - id: LLM-02
-    name: LLM-02
-    task: Text generation
-    precision: int4 weight-only, fp16 activations
+    highlight: true
+    tagline: >-
+      The fastest model in the matrix, and a sparse MoE — the architecture that
+      breaks naive per-operator dispatch.
+
+  - id: gpt-oss-120b
+    name: GPT-OSS 120B
+    hf: openai/gpt-oss-120b
+    params: 120B total, 5.1B active
+    arch: Sparse mixture of experts
+    task: Text generation, reasoning
+    precision: uint4 AWQ, per-group asymmetric
     status: Validated
-  - id: LLM-03
-    name: LLM-03
-    task: Text generation
-    precision: int4 weight-only, fp16 activations
-    status: Validated
-  - id: LLM-04
-    name: LLM-04
-    task: Text generation
-    precision: int4 weight-only, fp16 activations
-    status: Validated
-  - id: LLM-05
-    name: LLM-05
+    highlight: true
+    tagline: >-
+      120B parameters on an integrated GPU, at interactive speed. This is what
+      128 GB of unified memory is for.
+
+  - id: qwen2.5-coder-14b
+    name: Qwen2.5-Coder 14B Instruct
+    hf: Qwen/Qwen2.5-Coder-14B-Instruct
+    params: 14B
+    arch: Dense transformer
     task: Code generation
-    precision: int4 weight-only, fp16 activations
+    precision: int4 RTN, group 128
     status: Validated
-  - id: LLM-06
-    name: LLM-06
-    task: Text generation, mixture of experts
-    precision: int4 weight-only, fp16 activations
-    status: Validated
-  - id: LLM-07
-    name: LLM-07
-    task: Text generation, mixture of experts
-    precision: int4 weight-only, fp16 activations
-    status: Validated
-  - id: LLM-08
-    name: LLM-08
+    highlight: true
+    tagline: >-
+      A coding assistant that fits in local memory and holds a 16K-token file in
+      its context without falling over.
+
+  - id: qwen2.5-14b
+    name: Qwen2.5 14B Instruct
+    hf: Qwen/Qwen2.5-14B-Instruct
+    params: 14B
+    arch: Dense transformer
     task: Text generation
-    precision: int4 weight-only, fp16 activations
+    precision: int4 RTN, group 128
     status: Validated
 
+  - id: llama-3.1-8b
+    name: Llama 3.1 8B
+    hf: meta-llama/Llama-3.1-8B
+    params: 8B
+    arch: Dense transformer
+    task: Text generation
+    precision: int4 AWQ, group 128, asymmetric
+    status: Validated
+
+  - id: mistral-7b-v0.3
+    name: Mistral 7B Instruct v0.3
+    hf: mistralai/Mistral-7B-Instruct-v0.3
+    params: 7B
+    arch: Dense transformer
+    task: Text generation
+    precision: int4 AWQ, block 128
+    status: Validated
+
+  - id: phi-4-14b
+    name: Phi-4 14B
+    hf: microsoft/phi-4
+    params: 14B
+    arch: Dense transformer
+    task: Text generation, reasoning
+    precision: int4 RTN, block 32
+    status: Validated
+
+  - id: deepseek-r1-distill-llama-70b
+    name: DeepSeek-R1-Distill-Llama 70B
+    hf: deepseek-ai/DeepSeek-R1-Distill-Llama-70B
+    params: 70B
+    arch: Dense transformer
+    task: Text generation, reasoning
+    precision: int4 AWQ, block 128
+    status: Validated
+    highlight: true
+    tagline: >-
+      The largest dense model in the matrix. Included because a 70B dense
+      decoder is where memory planning stops being an implementation detail.
+
 vlm:
-  - id: VLM-01
-    name: VLM-01
-    task: Image understanding
-    precision: int4 text decoder, fp16 vision encoder
+  - id: qwen3.6-35b-a3b
+    name: Qwen3.6 35B-A3B
+    hf: Qwen/Qwen3.6-35B-A3B
+    params: 35B total, 3B active
+    arch: Gated DeltaNet + sparse mixture of experts
+    task: Image understanding, text generation
+    precision: int4 text decoder, group 32; fp16 vision encoder
     status: Validated
-  - id: VLM-02
-    name: VLM-02
-    task: Image understanding
-    precision: int4 text decoder, fp16 vision encoder
+    highlight: true
+    tagline: >-
+      Gated DeltaNet and a sparse MoE in the same graph. Nothing about this
+      model is a stock transformer, and it still compiles to one artifact.
+
+  - id: qwen3.5-9b
+    name: Qwen3.5 9B
+    hf: Qwen/Qwen3.5-9B
+    params: 9B
+    arch: Dense transformer + vision encoder
+    task: Image understanding, text generation
+    precision: int4 text decoder, group 32; fp16 vision encoder
     status: Validated
-  - id: VLM-03
-    name: VLM-03
-    task: Image understanding
-    precision: int4 text decoder, fp16 vision encoder
+
+  - id: qwen3.5-35b-a3b
+    name: Qwen3.5 35B-A3B
+    hf: Qwen/Qwen3.5-35B-A3B
+    params: 35B total, 3B active
+    arch: Sparse mixture of experts + vision encoder
+    task: Image understanding, text generation
+    precision: int4 text decoder, group 32; fp16 vision encoder
     status: Validated
-  - id: VLM-04
-    name: VLM-04
-    task: Image understanding, mixture of experts
-    precision: int4 text decoder, fp16 vision encoder
+
+  - id: qwen3.6-27b
+    name: Qwen3.6 27B
+    hf: Qwen/Qwen3.6-27B
+    params: 27B
+    arch: Dense transformer + vision encoder
+    task: Image understanding, text generation
+    precision: int4 RTN text decoder, group 32; fp16 vision encoder
     status: Validated
-  - id: VLM-05
-    name: VLM-05
-    task: Image understanding, mixture of experts
-    precision: int4 text decoder, fp16 vision encoder
-    status: Validated
-  - id: VLM-06
-    name: VLM-06
-    task: Image understanding
-    precision: int4 text decoder, fp16 vision encoder
-    status: Validated
-  - id: VLM-07
-    name: VLM-07
-    task: Image understanding
-    precision: int4 text decoder, fp16 vision encoder
+
+  - id: qwen3.8-27b
+    name: Qwen3.8 27B
+    hf: Qwen/Qwen3.8-27B
+    params: 27B
+    arch: Dense transformer + vision encoder
+    task: Image understanding, text generation
+    precision: int4 k-quant text decoder, group 128; fp16 vision encoder
     status: New this release
-  - id: VLM-08
-    name: VLM-08
-    task: Image understanding
-    precision: int4 text decoder, fp16 vision encoder
+    highlight: true
+    tagline: >-
+      Added in v0.4.0. A model that did not exist when the compiler was
+      designed, brought up without a new operator library.
+
+  - id: gemma-3-4b-it
+    name: Gemma 3 4B IT
+    hf: google/gemma-3-4b-it
+    params: 4B
+    arch: Dense transformer + vision encoder
+    task: Image understanding, text generation
+    precision: int4 RTN, group 128
+    status: Validated
+    highlight: true
+    tagline: >-
+      The small end of the matrix. Vision plus text at 4B, fast enough that the
+      model stops being the bottleneck.
+
+  - id: gemma-4-12b-it
+    name: Gemma 4 12B IT
+    hf: google/gemma-4-12B-it
+    params: 12B
+    arch: Dense transformer + vision encoder
+    task: Image understanding, text generation
+    precision: int4 k-quant, block 32
     status: New this release
+
+  - id: gemma-4-26b-a4b-it
+    name: Gemma 4 26B-A4B IT
+    hf: google/gemma-4-26B-A4B-it
+    params: 26B total, 4B active
+    arch: Sparse mixture of experts + vision encoder
+    task: Image understanding, text generation
+    precision: int4 weights, quantized MoE
+    status: Validated
+
+# Speech recognition. Every entry is an OpenAI Whisper checkpoint; the id
+# encodes the size and the precision the ONNX export was built at.
+speech:
+  - id: whisper-tiny-fp16
+    name: Whisper tiny
+    hf: openai/whisper-tiny
+    precision: fp16
+  - id: whisper-base-fp16
+    name: Whisper base
+    hf: openai/whisper-base
+    precision: fp16
+  - id: whisper-small-fp16
+    name: Whisper small
+    hf: openai/whisper-small
+    precision: fp16
+  - id: whisper-medium-fp16
+    name: Whisper medium
+    hf: openai/whisper-medium
+    precision: fp16
+  - id: whisper-large-v3-fp16
+    name: Whisper large-v3
+    hf: openai/whisper-large-v3
+    precision: fp16
+  - id: whisper-large-v3-fp32
+    name: Whisper large-v3
+    hf: openai/whisper-large-v3
+    precision: fp32
+  - id: whisper-large-v3-turbo-fp16
+    name: Whisper large-v3-turbo
+    hf: openai/whisper-large-v3-turbo
+    precision: fp16
+
+# Single-graph vision models. These are not generative: one forward pass, one
+# result, measured per inference rather than per token. Several are run at more
+# than one input resolution or batch size, which is part of the identity of the
+# row -- a 2048x3072 swin and a 512x1024 swin are not the same workload.
+vision:
+  - id: mobilenet-v2-224
+    name: MobileNet v2 1.0 224
+    hf: google/mobilenet_v2_1.0_224
+    task: Image classification
+  - id: resnet50-v1.5
+    name: ResNet-50 v1.5
+    task: Image classification
+  - id: swin-tiny-224
+    name: Swin tiny, 224x224
+    hf: microsoft/swin-tiny-patch4-window7-224
+    task: Image classification
+  - id: swinv2-tiny-512x1024
+    name: Swin v2 tiny, 512x1024
+    task: Image classification
+  - id: swinv2-tiny-8x512x1024
+    name: Swin v2 tiny, batch 8, 512x1024
+    task: Image classification
+  - id: swinv2-base-2048x3072
+    name: Swin v2 base, 2048x3072
+    task: Image classification
+  - id: swinv2-base-8x2048x3072
+    name: Swin v2 base, batch 8, 2048x3072
+    task: Image classification
+  - id: detr-resnet-50
+    name: DETR ResNet-50
+    hf: facebook/detr-resnet-50
+    task: Object detection
+  - id: yolov5lu
+    name: YOLOv5l-u
+    task: Object detection
+  - id: ssd-resnet34-1200
+    name: SSD ResNet-34, 1200x1200
+    task: Object detection
+  - id: mb1-ssd
+    name: MobileNet v1 SSD
+    task: Object detection
+  - id: bevformer
+    name: BEVFormer
+    task: 3D detection from multi-camera input
+    precision: fp16
+  - id: bevformer-tiny-temporal
+    name: BEVFormer tiny, temporal
+    task: 3D detection from multi-camera input
+  - id: simplebev
+    name: SimpleBEV
+    task: Bird's-eye-view perception

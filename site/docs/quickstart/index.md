@@ -27,11 +27,16 @@ intend to change the compiler.
 |---|---|
 | You are on Linux and want to run models | [Linux]({{ '/docs/quickstart/linux/' | relative_url }}) |
 | You are on Windows and want to run models | [Windows]({{ '/docs/quickstart/windows/' | relative_url }}) |
+| You want a Strix Halo machine set up without reading anything | [One-command deploy]({{ '/docs/quickstart/deploy-script/' | relative_url }}) |
 | You intend to change hip-ep itself | [Build from Source]({{ '/docs/quickstart/build/' | relative_url }}) |
 
 Each page is self-contained: it starts from a machine with nothing installed and
 ends with a model executing on the GPU. You should not need to jump between
 them.
+
+The third row is the Windows page as a single script, for unattended installs
+and for handing to an agent. It covers `gfx1151` only, and it ends with the same
+GPU-execution check the manual page does.
 
 ## Before you start
 

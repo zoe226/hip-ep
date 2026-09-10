@@ -3,13 +3,6 @@ title: Official Models
 description: The models validated against every hip-ep release, and what that validation covers.
 ---
 
-<div class="note note--warn" markdown="1">
-**Placeholder listing.** The identifiers below are stand-ins. The real matrix is
-eight LLMs and eight VLMs, but the names have not been cleared for publication
-yet, so this page ships with its structure only. Replacing them is an edit to
-`site/_data/models.yml`; no page change is needed.
-</div>
-
 An *official model* is one that runs in the validation suite before every
 release. A model on this page is not merely known to load — it is checked each
 release for three separate things, and a regression in any of them blocks the
@@ -17,6 +10,9 @@ release rather than being discovered by users afterwards.
 
 Anything not on this page may still work. Plenty does. It just has not been
 measured, so nobody can tell you in advance whether it will.
+
+This page is the complete list. For a shorter, opinionated selection with the
+numbers attached, see the [model showcase]({{ '/models/' | relative_url }}).
 
 ## What gets checked
 
@@ -30,33 +26,93 @@ Performance and accuracy are tracked separately on purpose. A change that makes
 a model faster by taking a shortcut through a kernel will pass the performance
 check and fail the accuracy one.
 
+<div class="note" markdown="1">
+**The names below are base models, not the files that run.** The suite runs
+quantized ONNX exports produced from each of these. Naming the base model and
+the quantization scheme separately is the honest version: it tells you what the
+model is and what was done to it, and the link goes somewhere you can actually
+read about it.
+</div>
+
 ## Language models
 
-| Model | Task | Precision | Status |
-|---|---|---|---|
+<div class="table-scroll" markdown="1">
+
+| Model | Parameters | Architecture | Quantization | Status |
+|---|---|---|---|---|
 {% for m in site.data.models.llm -%}
-| `{{ m.name }}` | {{ m.task }} | {{ m.precision }} | {{ m.status }} |
+| {% if m.hf %}[{{ m.name }}](https://huggingface.co/{{ m.hf }}){% else %}{{ m.name }}{% endif %} | {{ m.params }} | {{ m.arch }} | {{ m.precision }} | {{ m.status }} |
 {% endfor %}
+
+</div>
 
 ## Vision-language models
 
-| Model | Task | Precision | Status |
-|---|---|---|---|
+<div class="table-scroll" markdown="1">
+
+| Model | Parameters | Architecture | Quantization | Status |
+|---|---|---|---|---|
 {% for m in site.data.models.vlm -%}
-| `{{ m.name }}` | {{ m.task }} | {{ m.precision }} | {{ m.status }} |
+| {% if m.hf %}[{{ m.name }}](https://huggingface.co/{{ m.hf }}){% else %}{{ m.name }}{% endif %} | {{ m.params }} | {{ m.arch }} | {{ m.precision }} | {{ m.status }} |
 {% endfor %}
+
+</div>
+
+Two of these are worth pointing at. The `A3B` and `A4B` suffixes mark sparse
+mixture-of-experts models — thirty-five billion parameters of which three are
+active per token — and Qwen3.6 pairs that with Gated DeltaNet rather than plain
+attention. Neither is a stock transformer, and neither needed a new operator
+library: they compile through the same pipeline as everything else on this
+page. That is the argument for a compiler, stated as a fact instead of a claim.
+
+## Speech recognition
+
+<div class="table-scroll" markdown="1">
+
+| Model | Precision |
+|---|---|
+{% for m in site.data.models.speech -%}
+| {% if m.hf %}[{{ m.name }}](https://huggingface.co/{{ m.hf }}){% else %}{{ m.name }}{% endif %} | {{ m.precision }} |
+{% endfor %}
+
+</div>
+
+`large-v3` is validated at both fp16 and fp32. The pair exists because the fp32
+path is the accuracy reference: if a quantization or kernel change moves fp16
+output, the fp32 run is what says whether the model or the runtime moved.
+
+## Vision models
+
+These are not generative. One forward pass produces one result, so they are
+measured per inference rather than per token — and several appear at more than
+one input resolution or batch size, because those are different workloads with
+different bottlenecks rather than the same model twice.
+
+<div class="table-scroll" markdown="1">
+
+| Model | Task |
+|---|---|
+{% for m in site.data.models.vision -%}
+| {% if m.hf %}[{{ m.name }}](https://huggingface.co/{{ m.hf }}){% else %}{{ m.name }}{% endif %} | {{ m.task }} |
+{% endfor %}
+
+</div>
 
 ## What "int4" means here
 
-Every model in the matrix is quantized. The weights are 4-bit integers grouped
-along the input dimension, with a scale — and for asymmetric schemes a zero
-point — per group. Activations stay in fp16.
+Every generative model in the matrix is quantized. The weights are 4-bit
+integers grouped along the input dimension, with a scale — and for asymmetric
+schemes a zero point — per group. Activations stay in fp16.
 
 This is not a hip-ep-specific format. These are the same ONNX weight-only
 quantized models the rest of the ecosystem produces; hip-ep consumes the
 standard `MatMulNBits` representation. On the vision-language models the vision
 encoder stays in fp16 while the text decoder is quantized, because the encoder
 runs once per image and the decoder runs once per token.
+
+The schemes differ between models — RTN, AWQ, k-quant, symmetric and
+asymmetric, group sizes from 32 to 128 — because they come from wherever the
+best export of that model came from. hip-ep does not care which one you bring.
 
 <div class="note" markdown="1">
 Quantization is a property of the model file, not a runtime flag. hip-ep does

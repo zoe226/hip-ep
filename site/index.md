@@ -29,22 +29,30 @@ description: >-
   <div class="section__inner">
     <div class="stat-row">
       <div class="stat">
-        <span class="stat__value">16</span>
-        <span class="stat__label">Models validated every release</span>
+        <span class="stat__value">50+</span>
+        <span class="stat__label">LLMs brought up on Strix Halo</span>
       </div>
       <div class="stat">
-        <span class="stat__value">MLIR</span>
-        <span class="stat__label">Compiler pipeline, not an op library</span>
+        <span class="stat__value">20+</span>
+        <span class="stat__label">Distinct architectures — LLM, VLM, vision, speech</span>
       </div>
       <div class="stat">
-        <span class="stat__value">1.27.0</span>
-        <span class="stat__label">ONNX Runtime, pinned</span>
+        <span class="stat__value">One graph</span>
+        <span class="stat__label">Any prompt length, prefill and decode, compiled once</span>
       </div>
       <div class="stat">
-        <span class="stat__value">MIT</span>
-        <span class="stat__label">Licensed, source available</span>
+        <span class="stat__value">32K</span>
+        <span class="stat__label">Maximum supported context, in tokens</span>
       </div>
     </div>
+    <p>
+      Fifty-plus is what has been brought up and measured on the hardware.
+      Sixteen of those are the <em>official matrix</em> — the models that gate
+      every release on function, performance and accuracy. They are listed, with
+      their numbers, on the
+      <a href="{{ '/models/' | relative_url }}">model showcase</a> and the
+      <a href="{{ '/docs/benchmarks/' | relative_url }}">benchmarks page</a>.
+    </p>
   </div>
 </section>
 
@@ -82,6 +90,21 @@ description: >-
         </p>
       </div>
     </div>
+
+    <p>
+      That pipeline is why <strong>one graph</strong> is enough. hip-ep compiles
+      for dynamic shape, so a single compilation serves any prompt length and
+      both phases of generation — prefill and decode — rather than one
+      specialization per shape bucket. It is also why a model whose
+      architecture did not exist when the compiler was written can be brought
+      up without adding kernels for it: a sparse mixture of experts and a Gated
+      DeltaNet block go through the same passes as a plain transformer.
+    </p>
+    <p>
+      Around 70 ONNX operators are supported today. The pipeline is built on
+      MLIR, pins ONNX Runtime 1.27.0, and is MIT licensed — compiler, runtime
+      and kernels are all in the repository.
+    </p>
   </div>
 </section>
 
@@ -162,10 +185,10 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
         <p class="card__body">Serve an LLM, prove the GPU really ran it,
           benchmark without fooling yourself, bring your own ONNX model.</p>
       </a>
-      <a class="card card--link" href="{{ '/docs/models/' | relative_url }}">
-        <p class="card__title">Official models</p>
-        <p class="card__body">The 16 language and vision-language models
-          validated on every release, and what "int4" means here.</p>
+      <a class="card card--link" href="{{ '/models/' | relative_url }}">
+        <p class="card__title">Models</p>
+        <p class="card__body">The language and vision-language models validated
+          on every release, with their measured numbers on the card.</p>
       </a>
       <a class="card card--link" href="{{ '/docs/benchmarks/' | relative_url }}">
         <p class="card__title">Benchmarks</p>

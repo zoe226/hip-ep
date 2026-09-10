@@ -84,7 +84,7 @@ nav_links:
   - label: Tutorials
     url: "/docs/tutorials/"
   - label: Models
-    url: "/docs/models/"
+    url: "/models/"
   - label: Benchmarks
     url: "/docs/benchmarks/"
 
@@ -119,6 +119,8 @@ docs_nav:
         url: "/docs/quickstart/linux/"
       - label: Windows
         url: "/docs/quickstart/windows/"
+      - label: One-command deploy
+        url: "/docs/quickstart/deploy-script/"
       - label: Build from Source
         url: "/docs/quickstart/build/"
 
