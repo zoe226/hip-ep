@@ -16,7 +16,7 @@ description: >-
   <div class="section__inner hero__grid">
     <div class="hero__main">
       <p class="kicker">ONNX Runtime Execution Provider</p>
-      <h1 class="headline-lg">Run 50+ language models on the AMD GPU you already have</h1>
+      <h1 class="headline-lg">The fastest, most efficient LLM inference on AMD GPUs</h1>
       <p class="lede">
         hip-ep compiles your ONNX graph into machine code for the GPU in front
         of you and runs it there — a 4B vision-language model or a 120B mixture
@@ -125,7 +125,7 @@ description: >-
       </div>
     </div>
     <p>
-      The fifty-plus in the headline is what has been brought up and measured
+      The fifty-plus above is what has been brought up and measured
       on the hardware, on Strix Halo. Sixteen of those are the
       <em>official matrix</em> — the models that gate
       every release on function, performance and accuracy. Seven of the sixteen
