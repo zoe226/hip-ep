@@ -603,6 +603,28 @@ a.card--link:hover .card__title::after { color: var(--accent); }
 .model-card__metrics dd span { font-size: var(--step--1); font-weight: 400; color: var(--text-muted); }
 .model-card__cond { margin: .6rem 0 0; font-size: var(--step--1); color: var(--text-faint); }
 
+/* The install command is the one thing on this page a reader is meant to walk
+   away having run, so it is set a step up from a body code block and given the
+   full column rather than half of a split. Width is capped in characters, not
+   percent: past roughly 90 characters the eye loses the start of the line, and
+   this command is 84. */
+.install__cmd { max-width: 92ch; margin-top: 1.75rem; }
+.install__cmd div.highlight { margin-bottom: 0; }
+.install__cmd code { font-size: 1rem; }
+.install__note {
+  max-width: 68ch; margin: .8rem 0 0;
+  font-size: var(--step--1); color: var(--text-muted);
+}
+/* The hand-run route, kept but visibly secondary. The rule is doing the work
+   that a heading would otherwise have to do, which is why there is no heading. */
+.install__manual {
+  margin-top: 2.75rem; padding-top: 1.75rem; border-top: 1px solid var(--border);
+}
+.install__manual .split { margin-top: .9rem; align-items: start; }
+/* Scoped to the columns rather than the block: the label above the split sets
+   its own smaller size, and a bare `.install__manual p` would outrank it. */
+.install__manual .split__col p { font-size: var(--step--1); color: var(--text-muted); }
+
 /* Two parallel routes to the same place, side by side rather than stacked, so
    neither reads as the recommended one. The minimum is set by the widest
    command in either column, not by the prose: a wrapped shell command is a

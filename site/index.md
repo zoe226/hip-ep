@@ -172,44 +172,47 @@ description: >-
   </div>
 </section>
 
-<section class="section section--alt">
+<section class="section section--alt" id="install">
   <div class="section__inner">
-    <h2 class="headline-md">From download to inference</h2>
+    <p class="kicker">Install</p>
+    <h2 class="headline-md">Now put one on your own machine</h2>
     <p class="lede">
-      Two routes to the same working install, and neither of them is the
-      recommended one: run the script if you want the machine ready, follow the
-      Quick Start if you want to see what each step does.
+      On Windows with a Ryzen AI Max, this is the entire setup. It detects the
+      GPU, fetches the release, unpacks it, then generates a small model and
+      runs it twice — once through hip-ep and once CPU-only — so the script
+      finishes by <em>proving</em> the GPU did the work rather than assuming it.
+      About ten minutes, almost all of it the download.
     </p>
 
-    <div class="split">
-      <div class="split__col">
-        <p class="split__label">Hand it to a script</p>
-
-<div class="prose" markdown="1">
+<div class="prose install__cmd" markdown="1">
 ```powershell
 irm {{ site.url }}{{ site.baseurl }}/assets/deploy-strix-halo.ps1 -OutFile deploy.ps1
 .\deploy.ps1
 ```
 </div>
 
-        <p>
-          Detects the GPU, fetches the release, unpacks it, then generates a
-          small model and runs it twice — once through hip-ep and once CPU-only
-          — to confirm the GPU actually did the work. About ten minutes, almost
-          all of it the download.
-        </p>
-        <p>
-          It is non-interactive and safe to re-run. The last line of output and
-          a JSON report are both machine-readable, which is what makes it
-          something a coding agent can be handed as a prerequisite.
-        </p>
-        <div class="btn-row">
-          <a class="btn btn--primary" href="{{ '/docs/quickstart/deploy-script/' | relative_url }}">What the script does</a>
-        </div>
-      </div>
+    <p class="install__note">
+      Non-interactive and safe to re-run. The last line of output and a JSON
+      report are both machine-readable, which is what makes it something a
+      coding agent can be handed as a prerequisite.
+    </p>
 
-      <div class="split__col">
-        <p class="split__label">Or do it yourself</p>
+    <div class="btn-row">
+      <a class="btn btn--primary" href="{{ '/docs/quickstart/deploy-script/' | relative_url }}">What the script does</a>
+      <a class="btn btn--ghost" href="{{ '/docs/quickstart/' | relative_url }}">Linux, and the other GPUs</a>
+    </div>
+
+    {%- comment -%}
+    The manual route stays on the page, below a rule and at half the weight.
+    It is not a footnote -- it is the only route on Linux, and it is what
+    anyone who has to explain the install to someone else will want -- but
+    presenting the two as equals was leaving the reader to make a choice the
+    page is in a better position to make for them.
+    {%- endcomment -%}
+    <div class="install__manual">
+      <p class="split__label">Or do it a command at a time</p>
+      <div class="split">
+        <div class="split__col">
 
 <div class="prose" markdown="1">
 ```powershell
@@ -218,19 +221,20 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
 ```
 </div>
 
-        <p>
-          Two commands, and the second one is already inference. Linux needs one
-          more thing — a ROCm runtime, which the package deliberately does not
-          bundle, because the right way to get one differs by distribution.
-        </p>
-        <p>
-          Both platforms are written out a command at a time, each with the
-          result to expect, so a step that goes wrong is caught where it goes
-          wrong rather than three commands later.
-        </p>
-        <div class="btn-row">
-          <a class="btn btn--ghost" href="{{ '/docs/quickstart/windows/' | relative_url }}">Windows Quick Start</a>
-          <a class="btn btn--ghost" href="{{ '/docs/quickstart/linux/' | relative_url }}">Linux Quick Start</a>
+        </div>
+        <div class="split__col">
+          <p>
+            Two commands, and the second one is already inference. Linux needs
+            one more thing — a ROCm runtime, which the package deliberately does
+            not bundle, because the right way to get one differs by
+            distribution. Both platforms are written out a step at a time, each
+            with the result to expect, so a step that goes wrong is caught where
+            it goes wrong rather than three commands later.
+          </p>
+          <div class="btn-row">
+            <a class="btn btn--ghost" href="{{ '/docs/quickstart/windows/' | relative_url }}">Windows Quick Start</a>
+            <a class="btn btn--ghost" href="{{ '/docs/quickstart/linux/' | relative_url }}">Linux Quick Start</a>
+          </div>
         </div>
       </div>
     </div>
