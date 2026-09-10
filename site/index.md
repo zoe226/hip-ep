@@ -8,6 +8,10 @@ description: >-
   custom HIP kernels.
 ---
 
+{%- assign snap = site.data.benchmarks.snapshot -%}
+{%- assign llm_hi = site.data.models.llm | where: "highlight", true -%}
+{%- assign vlm_hi = site.data.models.vlm | where: "highlight", true -%}
+
 <section class="hero">
   <div class="section__inner">
     <p class="kicker">ONNX Runtime Execution Provider</p>
@@ -22,6 +26,20 @@ description: >-
       <a class="btn btn--ghost" href="{{ site.repo_url }}/releases/tag/{{ site.hip_ep_version }}">Download {{ site.hip_ep_version }}</a>
       <a class="btn btn--ghost" href="{{ site.repo_url }}">View on GitHub</a>
     </div>
+
+<div class="prose hero__cmd" markdown="1">
+```powershell
+irm {{ site.url }}{{ site.baseurl }}/assets/deploy-strix-halo.ps1 -OutFile deploy.ps1; .\deploy.ps1
+```
+</div>
+
+    <p class="hero__cmd-note">
+      Windows on a Ryzen AI Max. Installs the release package, then proves the
+      GPU executed a model rather than assuming it.
+      <a href="{{ '/docs/quickstart/deploy-script/' | relative_url }}">What this script does</a>
+      &middot;
+      <a href="{{ '/docs/quickstart/' | relative_url }}">Other platforms</a>
+    </p>
   </div>
 </section>
 
@@ -48,11 +66,104 @@ description: >-
     <p>
       Fifty-plus is what has been brought up and measured on the hardware.
       Sixteen of those are the <em>official matrix</em> — the models that gate
-      every release on function, performance and accuracy. They are listed, with
-      their numbers, on the
-      <a href="{{ '/models/' | relative_url }}">model showcase</a> and the
-      <a href="{{ '/docs/benchmarks/' | relative_url }}">benchmarks page</a>.
+      every release on function, performance and accuracy. Seven of the sixteen
+      are below; the rest are on the
+      <a href="{{ '/docs/models/' | relative_url }}">model matrix</a>.
     </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section__inner">
+    <p class="kicker">Model showcase</p>
+    <h2 class="headline-md">Models that already run on your GPU</h2>
+    <p class="lede">
+      Not a compatibility list. Every model here is in the release validation
+      suite — brought up on the hardware and checked for function, performance
+      and accuracy before {{ snap.release }} ships, with a regression in any of
+      the three blocking the release.
+    </p>
+
+    <div class="model-grid">
+      {%- for m in llm_hi %}
+      {% include model-card.html m=m kind="LLM" %}
+      {%- endfor %}
+      {%- for m in vlm_hi %}
+      {% include model-card.html m=m kind="VLM" %}
+      {%- endfor %}
+    </div>
+
+    <div class="btn-row">
+      <a class="btn btn--primary" href="{{ '/models/' | relative_url }}">The showcase in full</a>
+      <a class="btn btn--ghost" href="{{ '/docs/models/' | relative_url }}">Model matrix</a>
+      <a class="btn btn--ghost" href="{{ '/docs/benchmarks/' | relative_url }}">Benchmarks</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="section__inner">
+    <h2 class="headline-md">From download to inference</h2>
+    <p class="lede">
+      On Windows the release package is self-contained — the HIP runtime,
+      hipBLASLt, rocBLAS and MIOpen all ship with it. Nothing is compiled,
+      nothing is installed system-wide, and no administrator rights are needed.
+    </p>
+
+    <div class="split">
+      <div class="split__col">
+        <p class="split__label">Hand it to a script</p>
+
+<div class="prose" markdown="1">
+```powershell
+irm {{ site.url }}{{ site.baseurl }}/assets/deploy-strix-halo.ps1 -OutFile deploy.ps1
+.\deploy.ps1
+```
+</div>
+
+        <p>
+          Detects the GPU, fetches the release, unpacks it, then generates a
+          small model and runs it twice — once through hip-ep and once CPU-only
+          — to confirm the GPU actually did the work. About ten minutes, almost
+          all of it the download.
+        </p>
+        <p>
+          It is non-interactive and safe to re-run. The last line of output and
+          a JSON report are both machine-readable, which is what makes it
+          something a coding agent can be handed as a prerequisite.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="{{ '/docs/quickstart/deploy-script/' | relative_url }}">What the script does</a>
+        </div>
+      </div>
+
+      <div class="split__col">
+        <p class="split__label">Or do it yourself</p>
+
+<div class="prose" markdown="1">
+```powershell
+Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -DestinationPath hip-ep
+.\hip-ep\bin\hip-onnx-runner.exe -m your-model.onnx
+```
+</div>
+
+        <p>
+          Two commands, and the second one is already inference. Linux needs one
+          more thing — a ROCm runtime, which the package deliberately does not
+          bundle, because the right way to get one differs by distribution.
+        </p>
+        <p>
+          Both platforms are written out a command at a time, each with the
+          result to expect, and both end by checking that the graph ran where
+          you think it did. ONNX Runtime falls back to the CPU silently and
+          still returns correct answers, so that check is the point.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn--ghost" href="{{ '/docs/quickstart/windows/' | relative_url }}">Windows Quick Start</a>
+          <a class="btn btn--ghost" href="{{ '/docs/quickstart/linux/' | relative_url }}">Linux Quick Start</a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -109,33 +220,6 @@ description: >-
 </section>
 
 <section class="section section--alt">
-  <div class="section__inner section__inner--narrow">
-    <h2 class="headline-md">Two commands from download to inference</h2>
-    <p class="lede">
-      On Windows the release package is self-contained — the HIP runtime,
-      hipBLASLt, rocBLAS and MIOpen all ship with it.
-    </p>
-
-<div class="prose" markdown="1">
-```powershell
-Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -DestinationPath hip-ep
-.\hip-ep\bin\hip-onnx-runner.exe -m your-model.onnx
-```
-</div>
-
-    <p>
-      Linux needs one more thing: a ROCm runtime, which the package deliberately
-      does not bundle. Both paths are written out step by step, with a check and
-      an expected result after every command.
-    </p>
-    <div class="btn-row">
-      <a class="btn btn--primary" href="{{ '/docs/quickstart/linux/' | relative_url }}">Linux Quick Start</a>
-      <a class="btn btn--ghost" href="{{ '/docs/quickstart/windows/' | relative_url }}">Windows Quick Start</a>
-    </div>
-  </div>
-</section>
-
-<section class="section">
   <div class="section__inner">
     <h2 class="headline-md">Supported hardware</h2>
 
@@ -166,7 +250,7 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
   </div>
 </section>
 
-<section class="section section--alt">
+<section class="section">
   <div class="section__inner">
     <h2 class="headline-md">Start here</h2>
     <div class="card-grid">
@@ -188,7 +272,7 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
       <a class="card card--link" href="{{ '/models/' | relative_url }}">
         <p class="card__title">Models</p>
         <p class="card__body">The language and vision-language models validated
-          on every release, with their measured numbers on the card.</p>
+          on every release, and what each one is built out of.</p>
       </a>
       <a class="card card--link" href="{{ '/docs/benchmarks/' | relative_url }}">
         <p class="card__title">Benchmarks</p>

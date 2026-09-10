@@ -1,0 +1,74 @@
+{%- comment -%}
+Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+Licensed under the MIT License.
+
+One model showcase card. Used by the landing page wall and by /models/, which
+is the point: the two must not drift apart.
+
+Parameters:
+  m     -- an entry from _data/models.yml (llm or vlm)
+  kind  -- the label above the name, "LLM" or "VLM"
+
+Everything else is derived here rather than passed in, so a caller cannot
+quote a different prompt length or a different snapshot than the card claims.
+{%- endcomment -%}
+{%- assign snap = site.data.benchmarks.snapshot -%}
+{%- comment -%}
+The card wall quotes one prompt length so the cards stay comparable at a
+glance. Index 1 of `prompt_lengths` is the middle column -- 2048 tokens -- which
+is the length the whole matrix is characterised at.
+{%- endcomment -%}
+{%- assign col = 1 -%}
+{%- assign quoted_len = site.data.benchmarks.prompt_lengths[col] -%}
+{%- assign b = site.data.benchmarks.lm | where: "id", include.m.id | first -%}
+{%- comment -%}
+`params` is free text -- "120B total, 5.1B active" for a sparse model, "14B"
+for a dense one. Splitting it gives the two headline figures without a second
+copy of the same numbers in the data file.
+{%- endcomment -%}
+{%- assign param_parts = include.m.params | split: ", " -%}
+{%- assign param_total = param_parts[0] | split: " " | first -%}
+{%- assign param_active = param_parts[1] | split: " " | first -%}
+<article class="card model-card">
+  <p class="model-card__kind">{{ include.kind }}{% if include.m.status != 'Validated' %} &middot; New in {{ snap.release }}{% endif %}</p>
+  <h3 class="model-card__name">{% if include.m.hf %}<a href="https://huggingface.co/{{ include.m.hf }}">{{ include.m.name }}</a>{% else %}{{ include.m.name }}{% endif %}</h3>
+  <p class="model-card__meta">{% unless snap.placeholder %}{{ include.m.params }} &middot; {% endunless %}{{ include.m.arch }} &middot; {{ include.m.precision }}</p>
+  <p class="card__body">{{ include.m.tagline }}</p>
+  {%- if snap.placeholder %}
+  {%- comment -%}
+  Performance is withheld this release, and a headline metric reading "0" looks
+  like a broken card rather than an unpublished one. Size is the honest
+  substitute: it is the property the card is really making a claim about, and
+  it is not gated. The strip switches back on its own once the snapshot has
+  real numbers again.
+  {%- endcomment -%}
+  <dl class="model-card__metrics">
+    <div>
+      <dt>Parameters</dt>
+      <dd>{{ param_total }}</dd>
+    </div>
+    <div>
+      {%- if param_active %}
+      <dt>Active / token</dt>
+      <dd>{{ param_active }}</dd>
+      {%- else %}
+      <dt>Weights</dt>
+      <dd>{{ include.m.precision | split: " " | first }}</dd>
+      {%- endif %}
+    </div>
+  </dl>
+  <p class="model-card__cond">Throughput and latency pending release approval</p>
+  {%- else %}
+  <dl class="model-card__metrics">
+    <div>
+      <dt>Tokens / sec</dt>
+      <dd>{{ b.tps[col] }}</dd>
+    </div>
+    <div>
+      <dt>Time to first token</dt>
+      <dd>{{ b.ttft[col] }} <span>s</span></dd>
+    </div>
+  </dl>
+  <p class="model-card__cond">{{ quoted_len }}-token prompt &middot; {{ snap.release }}</p>
+  {%- endif %}
+</article>

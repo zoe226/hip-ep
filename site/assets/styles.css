@@ -424,6 +424,16 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
 .hero .lede { max-width: 56ch; }
 .hero .btn-row { margin-top: 1.75rem; }
 
+/* One runnable command in the hero, so the page answers "how do I start" before
+   the first scroll. It is character-limited rather than percentage-limited
+   because what must not wrap is the command, not the column. */
+.hero__cmd { max-width: 78ch; margin-top: 1.75rem; }
+.hero__cmd div.highlight { margin-bottom: 0; }
+.hero__cmd-note {
+  max-width: 78ch; margin: .65rem 0 0;
+  font-size: var(--step--1); color: var(--text-muted);
+}
+
 /* ==========================================================================
    Components
    ========================================================================== */
@@ -513,6 +523,19 @@ a.card--link:hover .card__title::after { color: var(--accent); }
 }
 .model-card__metrics dd span { font-size: var(--step--1); font-weight: 400; color: var(--text-muted); }
 .model-card__cond { margin: .6rem 0 0; font-size: var(--step--1); color: var(--text-faint); }
+
+/* Two parallel routes to the same place, side by side rather than stacked, so
+   neither reads as the recommended one. The minimum is set by the widest
+   command in either column, not by the prose: a wrapped shell command is a
+   command someone will paste wrong. */
+.split { display: grid; gap: 1.75rem 2rem; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); margin: 1.5rem 0; }
+.split__col > :last-child { margin-bottom: 0; }
+.split__label {
+  margin: 0 0 .6rem; font-family: var(--font-mono); font-size: .72rem;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--text-faint);
+}
+.split__col p { margin: 0 0 1rem; }
+.split__col .btn-row { margin-bottom: 0; }
 
 .stat-row { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin: 1.75rem 0; }
 .stat { padding: 1rem 1.15rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
