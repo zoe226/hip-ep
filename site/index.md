@@ -85,7 +85,7 @@ description: >-
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">MIT licensed</p>
+          <p class="deck__kicker">Open source</p>
           <p class="deck__title">Compiler, runtime and kernels in one repository</p>
           <p class="deck__body">
             Around 70 ONNX operators today, built on MLIR against ONNX Runtime
@@ -374,7 +374,7 @@ morphizen-ep.cpp:344] Using backend: mlir-backend
     <p>
       Something here wrong, missing, or contradicted by your own machine? The
       compiler, the runtime, the kernels and this site are all in
-      <a href="{{ site.repo_url }}">one MIT-licensed repository</a> — open an
+      <a href="{{ site.repo_url }}">one open-source repository</a> — open an
       <a href="{{ site.repo_url }}/issues">issue</a>, including the case where
       the documentation is what is broken.
     </p>
