@@ -367,6 +367,80 @@
     });
   }
 
+  /* ------------------------------------------------------------ hero deck */
+
+  function initDeck() {
+    // The markup ships every slide visible and the controls hidden, so the
+    // no-JS rendering is a readable stack of features rather than a dead
+    // widget. Only once we are sure we can drive it do we collapse it to one
+    // slide and reveal the controls.
+    var deck = document.querySelector('[data-deck]');
+    if (!deck) return;
+
+    var slides = deck.querySelectorAll('[data-deck-slide]');
+    var controls = deck.querySelector('[data-deck-controls]');
+    var dotHost = deck.querySelector('[data-deck-dots]');
+    if (slides.length < 2 || !controls || !dotHost) return;
+
+    var index = 0;
+    var dots = [];
+    var timer = null;
+
+    function show(next) {
+      index = (next + slides.length) % slides.length;
+      Array.prototype.forEach.call(slides, function (slide, i) {
+        slide.hidden = i !== index;
+      });
+      dots.forEach(function (dot, i) {
+        dot.setAttribute('aria-current', i === index ? 'true' : 'false');
+      });
+    }
+
+    Array.prototype.forEach.call(slides, function (slide, i) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'deck__dot';
+      dot.setAttribute('aria-label', 'Feature ' + (i + 1) + ' of ' + slides.length);
+      dot.addEventListener('click', function () {
+        stop();
+        show(i);
+      });
+      dotHost.appendChild(dot);
+      dots.push(dot);
+    });
+
+    deck.querySelector('[data-deck-prev]').addEventListener('click', function () {
+      stop();
+      show(index - 1);
+    });
+    deck.querySelector('[data-deck-next]').addEventListener('click', function () {
+      stop();
+      show(index + 1);
+    });
+
+    function stop() {
+      if (timer === null) return;
+      window.clearInterval(timer);
+      timer = null;
+    }
+
+    // Auto-advance is a hint that there is more than one panel, so it stops for
+    // good the moment someone steers the deck themselves — and never starts if
+    // the reader has asked for reduced motion, or is reading a slide.
+    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (!(still && still.matches)) {
+      timer = window.setInterval(function () {
+        show(index + 1);
+      }, 7000);
+      deck.addEventListener('mouseenter', stop);
+      deck.addEventListener('focusin', stop);
+    }
+
+    deck.classList.add('is-ready');
+    controls.hidden = false;
+    show(0);
+  }
+
   /* ----------------------------------------------------------------- boot */
 
   function boot() {
@@ -376,6 +450,7 @@
     initToc();
     initSearch();
     initTableScroll();
+    initDeck();
   }
 
   if (document.readyState === 'loading') {

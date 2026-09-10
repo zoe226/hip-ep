@@ -6,8 +6,13 @@ One model showcase card. Used by the landing page wall and by /models/, which
 is the point: the two must not drift apart.
 
 Parameters:
-  m     -- an entry from _data/models.yml (llm or vlm)
-  kind  -- the label above the name, "LLM" or "VLM"
+  m        -- an entry from _data/models.yml (llm or vlm)
+  kind     -- the label above the name, "LLM" or "VLM"
+  compact  -- truthy on the landing wall: drops the tagline and the precision,
+              leaving name, architecture and the two figures. A wall of cards is
+              scanned, not read, and prose in every cell is what stops it being
+              scannable. /models/ passes nothing and gets the full card, because
+              that page is where someone has already decided to read.
 
 Everything else is derived here rather than passed in, so a caller cannot
 quote a different prompt length or a different snapshot than the card claims.
@@ -29,11 +34,13 @@ copy of the same numbers in the data file.
 {%- assign param_parts = include.m.params | split: ", " -%}
 {%- assign param_total = param_parts[0] | split: " " | first -%}
 {%- assign param_active = param_parts[1] | split: " " | first -%}
-<article class="card model-card">
+<article class="card model-card{% if include.compact %} model-card--compact{% endif %}">
   <p class="model-card__kind">{{ include.kind }}{% if include.m.status != 'Validated' %} &middot; New in {{ snap.release }}{% endif %}</p>
   <h3 class="model-card__name">{% if include.m.hf %}<a href="https://huggingface.co/{{ include.m.hf }}">{{ include.m.name }}</a>{% else %}{{ include.m.name }}{% endif %}</h3>
-  <p class="model-card__meta">{% unless snap.placeholder %}{{ include.m.params }} &middot; {% endunless %}{{ include.m.arch }} &middot; {{ include.m.precision }}</p>
+  <p class="model-card__meta">{% unless snap.placeholder %}{{ include.m.params }} &middot; {% endunless %}{{ include.m.arch }}{% unless include.compact %} &middot; {{ include.m.precision }}{% endunless %}</p>
+  {%- unless include.compact %}
   <p class="card__body">{{ include.m.tagline }}</p>
+  {%- endunless %}
   {%- if snap.placeholder %}
   {%- comment -%}
   Performance is withheld this release, and a headline metric reading "0" looks
@@ -57,7 +64,7 @@ copy of the same numbers in the data file.
       {%- endif %}
     </div>
   </dl>
-  <p class="model-card__cond">Throughput and latency pending release approval</p>
+  <p class="model-card__cond">{% if include.compact %}Performance pending approval{% else %}Throughput and latency pending release approval{% endif %}</p>
   {%- else %}
   <dl class="model-card__metrics">
     <div>

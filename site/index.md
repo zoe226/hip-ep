@@ -13,33 +13,107 @@ description: >-
 {%- assign vlm_hi = site.data.models.vlm | where: "highlight", true -%}
 
 <section class="hero">
-  <div class="section__inner">
-    <p class="kicker">ONNX Runtime Execution Provider</p>
-    <h1 class="headline-lg">Run ONNX models<br />on AMD GPUs.</h1>
-    <p class="lede">
-      hip-ep compiles your ONNX graph through an MLIR pipeline into machine code
-      for the GPU in front of you, then executes it with hipDNN, hipBLASLt and
-      hand-written HIP kernels. It plugs into the ONNX Runtime you already call.
-    </p>
-    <div class="btn-row">
-      <a class="btn btn--primary" href="{{ '/docs/quickstart/' | relative_url }}">Get started</a>
-      <a class="btn btn--ghost" href="{{ site.repo_url }}/releases/tag/{{ site.hip_ep_version }}">Download {{ site.hip_ep_version }}</a>
-      <a class="btn btn--ghost" href="{{ site.repo_url }}">View on GitHub</a>
-    </div>
+  <div class="section__inner hero__grid">
+    <div class="hero__main">
+      <p class="kicker">ONNX Runtime Execution Provider</p>
+      <h1 class="headline-lg">120B parameters.<br />One integrated GPU.</h1>
+      <p class="lede">
+        hip-ep compiles your ONNX graph into machine code for the AMD GPU in
+        front of you and runs it there. No new inference API, no model server,
+        and no per-architecture kernels to wait for.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href="{{ '/docs/quickstart/' | relative_url }}">Get started</a>
+        <a class="btn btn--ghost" href="{{ site.repo_url }}/releases/tag/{{ site.hip_ep_version }}">Download {{ site.hip_ep_version }}</a>
+        <a class="btn btn--ghost" href="{{ site.repo_url }}">View on GitHub</a>
+      </div>
 
 <div class="prose hero__cmd" markdown="1">
 ```powershell
-irm {{ site.url }}{{ site.baseurl }}/assets/deploy-strix-halo.ps1 -OutFile deploy.ps1; .\deploy.ps1
+irm {{ site.url }}{{ site.baseurl }}/assets/deploy-strix-halo.ps1 -OutFile deploy.ps1
+.\deploy.ps1
 ```
 </div>
 
-    <p class="hero__cmd-note">
-      Windows on a Ryzen AI Max. Installs the release package, then proves the
-      GPU executed a model rather than assuming it.
-      <a href="{{ '/docs/quickstart/deploy-script/' | relative_url }}">What this script does</a>
-      &middot;
-      <a href="{{ '/docs/quickstart/' | relative_url }}">Other platforms</a>
-    </p>
+      <p class="hero__cmd-note">
+        Windows on a Ryzen AI Max. Installs the release package, then proves the
+        GPU executed a model rather than assuming it.
+        <a href="{{ '/docs/quickstart/deploy-script/' | relative_url }}">What this script does</a>
+        &middot;
+        <a href="{{ '/docs/quickstart/' | relative_url }}">Other platforms</a>
+      </p>
+    </div>
+
+    {%- comment -%}
+    The feature deck. Without JavaScript every panel is simply stacked and the
+    controls stay hidden, which is why the slides are ordinary sections rather
+    than an off-screen track: the fallback has to be readable, not merely
+    present. initDeck() in script.js takes over from there.
+    {%- endcomment -%}
+    <aside class="deck" data-deck aria-label="What hip-ep does">
+      <div class="deck__viewport" data-deck-viewport>
+        <article class="deck__slide" data-deck-slide>
+          <p class="deck__kicker">One graph</p>
+          <p class="deck__title">Any prompt length, compiled once</p>
+          <p class="deck__body">
+            Compilation is for dynamic shape, so a single compiled graph serves
+            prefill and decode at every length. No shape buckets, no recompile
+            in the middle of a conversation.
+          </p>
+        </article>
+        <article class="deck__slide" data-deck-slide>
+          <p class="deck__kicker">A compiler</p>
+          <p class="deck__title">New architectures without new kernels</p>
+          <p class="deck__body">
+            A sparse mixture of experts and a Gated DeltaNet block go through
+            the same MLIR passes as a plain transformer — so a model whose
+            architecture postdates the compiler can still be brought up.
+          </p>
+        </article>
+        <article class="deck__slide" data-deck-slide>
+          <p class="deck__kicker">Drop-in</p>
+          <p class="deck__title">An execution provider, not a runtime</p>
+          <p class="deck__body">
+            The ONNX Runtime calls you already make stay as they are. hip-ep
+            registers alongside the other providers and claims the parts of the
+            graph it can compile.
+          </p>
+        </article>
+        <article class="deck__slide" data-deck-slide>
+          <p class="deck__kicker">Self-contained</p>
+          <p class="deck__title">One archive on Windows</p>
+          <p class="deck__body">
+            The HIP runtime, hipBLASLt, rocBLAS and MIOpen are all in the
+            package. No ROCm installation, no change to <code>PATH</code>, no
+            administrator rights, and uninstalling is deleting the directory.
+          </p>
+        </article>
+        <article class="deck__slide" data-deck-slide>
+          <p class="deck__kicker">Offline</p>
+          <p class="deck__title">Compiles on the machine it runs on</p>
+          <p class="deck__body">
+            Compilation happens in-process, against the GPU actually present.
+            Nothing is fetched at inference time, so once the package is on disk
+            the whole path works with the network unplugged.
+          </p>
+        </article>
+        <article class="deck__slide" data-deck-slide>
+          <p class="deck__kicker">MIT licensed</p>
+          <p class="deck__title">Compiler, runtime and kernels in one repository</p>
+          <p class="deck__body">
+            Around 70 ONNX operators today, built on MLIR against ONNX Runtime
+            1.27.0. Every layer that touched your graph is readable, including
+            this site.
+          </p>
+        </article>
+      </div>
+
+      <div class="deck__controls" data-deck-controls hidden>
+        <button class="deck__nav" type="button" data-deck-prev aria-label="Previous feature">&#8249;</button>
+        <div class="deck__dots" data-deck-dots></div>
+        <button class="deck__nav" type="button" data-deck-next aria-label="Next feature">&#8250;</button>
+      </div>
+    </aside>
   </div>
 </section>
 
@@ -97,10 +171,10 @@ irm {{ site.url }}{{ site.baseurl }}/assets/deploy-strix-halo.ps1 -OutFile deplo
 
     <div class="model-grid">
       {%- for m in llm_hi %}
-      {% include model-card.html m=m kind="LLM" %}
+      {% include model-card.html m=m kind="LLM" compact=true %}
       {%- endfor %}
       {%- for m in vlm_hi %}
-      {% include model-card.html m=m kind="VLM" %}
+      {% include model-card.html m=m kind="VLM" compact=true %}
       {%- endfor %}
     </div>
 
@@ -174,34 +248,6 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
         </div>
       </div>
     </div>
-
-    <div class="card-grid">
-      <div class="card">
-        <p class="card__title">Self-contained on Windows</p>
-        <p class="card__body">
-          The HIP runtime, hipBLASLt, rocBLAS and MIOpen are all in the package.
-          No ROCm installation, no change to the system <code>PATH</code>, no
-          administrator rights, and uninstalling is deleting the directory.
-        </p>
-      </div>
-      <div class="card">
-        <p class="card__title">An execution provider, not a runtime</p>
-        <p class="card__body">
-          There is no new inference API to learn and no model server in the
-          middle. The ONNX Runtime calls you already make stay as they are;
-          hip-ep registers alongside the other providers and claims the parts
-          of the graph it can compile.
-        </p>
-      </div>
-      <div class="card">
-        <p class="card__title">Compiles on the machine it runs on</p>
-        <p class="card__body">
-          Compilation happens in-process, against the GPU actually in front of
-          it. Nothing is fetched at inference time, so once the package is on
-          disk the whole path works with the network unplugged.
-        </p>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -263,58 +309,6 @@ morphizen-ep.cpp:344] Using backend: mlir-backend
 
 <section class="section section--alt">
   <div class="section__inner">
-    <h2 class="headline-md">A compiler, not an operator library</h2>
-    <p class="lede">
-      Most execution providers dispatch each operation to a precompiled kernel.
-      hip-ep compiles the subgraph ONNX Runtime hands it, which is why the first
-      inference is slow and the rest are not.
-    </p>
-
-    <div class="card-grid">
-      <div class="card">
-        <p class="card__title">1 · ONNX to HIP dialect</p>
-        <p class="card__body">
-          Your operations are converted into a custom MLIR dialect that models
-          GPU memory, kernels and library calls explicitly — so they can be
-          reasoned about, not just executed.
-        </p>
-      </div>
-      <div class="card">
-        <p class="card__title">2 · HIP dialect to LLVM IR</p>
-        <p class="card__body">
-          Shape inference, memory planning and buffer pooling run over the whole
-          graph. Every transient allocation is pooled; outputs are allocated
-          through the runtime.
-        </p>
-      </div>
-      <div class="card">
-        <p class="card__title">3 · Execution</p>
-        <p class="card__body">
-          The result is OS-portable LLVM bitcode, JIT-loaded in-process and
-          dispatched to hipDNN, hipBLASLt and custom HIP kernels.
-        </p>
-      </div>
-    </div>
-
-    <p>
-      That pipeline is why <strong>one graph</strong> is enough. hip-ep compiles
-      for dynamic shape, so a single compilation serves any prompt length and
-      both phases of generation — prefill and decode — rather than one
-      specialization per shape bucket. It is also why a model whose
-      architecture did not exist when the compiler was written can be brought
-      up without adding kernels for it: a sparse mixture of experts and a Gated
-      DeltaNet block go through the same passes as a plain transformer.
-    </p>
-    <p>
-      Around 70 ONNX operators are supported today. The pipeline is built on
-      MLIR, pins ONNX Runtime 1.27.0, and is MIT licensed — compiler, runtime
-      and kernels are all in the repository.
-    </p>
-  </div>
-</section>
-
-<section class="section">
-  <div class="section__inner">
     <h2 class="headline-md">Supported hardware</h2>
 
 <div class="prose" markdown="1">
@@ -344,7 +338,7 @@ morphizen-ep.cpp:344] Using backend: mlir-backend
   </div>
 </section>
 
-<section class="section section--alt">
+<section class="section">
   <div class="section__inner">
     <h2 class="headline-md">Start here</h2>
     <div class="card-grid">
