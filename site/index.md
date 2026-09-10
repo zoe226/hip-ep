@@ -16,11 +16,12 @@ description: >-
   <div class="section__inner hero__grid">
     <div class="hero__main">
       <p class="kicker">ONNX Runtime Execution Provider</p>
-      <h1 class="headline-lg">120B parameters.<br />One integrated GPU.</h1>
+      <h1 class="headline-lg">Run 50+ language models on the AMD GPU you already have</h1>
       <p class="lede">
-        hip-ep compiles your ONNX graph into machine code for the AMD GPU in
-        front of you and runs it there. No new inference API, no model server,
-        and no per-architecture kernels to wait for.
+        hip-ep compiles your ONNX graph into machine code for the GPU in front
+        of you and runs it there — a 4B vision-language model or a 120B mixture
+        of experts, through the same compiler. No new inference API, no model
+        server, and no per-architecture kernels to wait for.
       </p>
       <div class="btn-row">
         <a class="btn btn--primary" href="{{ '/docs/quickstart/' | relative_url }}">Get started</a>
@@ -124,8 +125,9 @@ description: >-
       </div>
     </div>
     <p>
-      Fifty-plus is what has been brought up and measured on the hardware.
-      Sixteen of those are the <em>official matrix</em> — the models that gate
+      The fifty-plus in the headline is what has been brought up and measured
+      on the hardware, on Strix Halo. Sixteen of those are the
+      <em>official matrix</em> — the models that gate
       every release on function, performance and accuracy. Seven of the sixteen
       are below; the rest are on the
       <a href="{{ '/docs/models/' | relative_url }}">model matrix</a>.
