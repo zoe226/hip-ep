@@ -318,8 +318,8 @@ morphizen-ep.cpp:344] Using backend: mlir-backend
     </div>
 
     <div class="btn-row">
-      <a class="btn btn--primary" href="{{ '/docs/tutorials/verify-gpu/' | relative_url }}">Prove the GPU ran it</a>
-      <a class="btn btn--ghost" href="{{ '/docs/tutorials/benchmark/' | relative_url }}">Benchmark without fooling yourself</a>
+      <a class="btn btn--primary" href="{{ '/docs/tutorials/cpp-package/' | relative_url }}">Prove the GPU ran it</a>
+      <a class="btn btn--ghost" href="{{ '/docs/benchmarks/' | relative_url }}">See the numbers</a>
     </div>
   </div>
 </section>

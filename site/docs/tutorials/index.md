@@ -1,63 +1,67 @@
 ---
 title: Tutorials
-description: Five things you will need to do after the Quick Start works.
+description: Three end-to-end walkthroughs on Windows — one per way of installing hip-ep.
 ---
 
 The [Quick Start]({{ '/docs/quickstart/' | relative_url }}) ends the moment one
 ONNX graph runs on the GPU. That is the smallest possible proof that the
 installation works, and it is deliberately not useful for anything else.
 
-These five pages pick up from there. Each one is independent — read the one that
-matches what you are trying to do.
+These three pages pick up from there. Each covers one way of getting hip-ep onto
+a Windows machine and everything that follows from it: what the install actually
+gives you, how to run a plain ONNX graph, an LLM and a vision-language model
+against it, how to point a model at the provider, and how to confirm the GPU ran
+it rather than the CPU. Read the one that matches how you installed — they are
+independent, and none of them is a prerequisite for another.
 
-<div class="card-grid" markdown="0">
+<div class="card-grid card-grid--fill" markdown="0">
   <div class="card">
-    <p class="card__title">1 · Run a real LLM</p>
-    <p class="card__body">A decoder graph is not a chatbot. Wire up ONNX Runtime
-      GenAI for the tokenizer, the KV cache and the decode loop, and generate
-      actual text.</p>
+    <p class="card__title">1 · C++ package</p>
+    <p class="card__body">Extract the release zip, put <code>bin</code> on
+      <code>PATH</code>, run. Everything the binaries need ships inside the
+      archive — no Python, no Visual Studio, nothing to place by hand.</p>
   </div>
   <div class="card">
-    <p class="card__title">2 · Prove it ran on the GPU</p>
-    <p class="card__body">ONNX Runtime falls back to CPU silently and returns
-      correct answers. Three independent ways to catch it, and the environment
-      variable that does the opposite of what its name suggests.</p>
+    <p class="card__title">2 · Python package</p>
+    <p class="card__body">Four wheels into a Python 3.14 environment, in an order
+      that matters. For when you want to write the generation loop yourself
+      rather than read numbers off a benchmark.</p>
   </div>
   <div class="card">
-    <p class="card__title">3 · Benchmark your own model</p>
-    <p class="card__body">Which tool for which model shape, what to set, what to
-      never set, and how to read the per-operation breakdown.</p>
-  </div>
-  <div class="card">
-    <p class="card__title">4 · Bring your own ONNX model</p>
-    <p class="card__body">Find out which parts of your graph hip-ep claimed,
-      which it did not, and what to do about the gap.</p>
-  </div>
-  <div class="card">
-    <p class="card__title">5 · Look inside the compiler</p>
-    <p class="card__body">Dump the MLIR at every stage, inspect the compiled
-      artifact's ABI, and run the pipeline by hand without ONNX Runtime.</p>
+    <p class="card__title">3 · Source build</p>
+    <p class="card__body">The same provider, none of the convenience. What a
+      build tree does not wire up for you, and how to run models against it once
+      you have.</p>
   </div>
 </div>
 
-## Reading order
+## Which one
 
 | If you want to | Read |
 |---|---|
-| Generate text from an LLM | [Run an LLM with GenAI]({{ '/docs/tutorials/genai-llm/' | relative_url }}) |
-| Explain why hip-ep "is not faster than CPU" | [Prove the GPU ran it]({{ '/docs/tutorials/verify-gpu/' | relative_url }}) |
-| Produce numbers you can defend | [Benchmark your own model]({{ '/docs/tutorials/benchmark/' | relative_url }}) |
-| Run a model that is not on the official list | [Bring your own ONNX model]({{ '/docs/tutorials/bring-your-own-model/' | relative_url }}) |
-| Debug a compilation failure, or just understand the pipeline | [Look inside the compiler]({{ '/docs/tutorials/inside-the-compiler/' | relative_url }}) |
+| Run the shipped models and benchmark them, with the least setup | [Run models with the C++ package]({{ '/docs/tutorials/cpp-package/' | relative_url }}) |
+| Drive ONNX Runtime and OGA from your own Python code | [Run models from Python]({{ '/docs/tutorials/python-package/' | relative_url }}) |
+| Change the compiler, or target a GPU no package covers | [Run models from a source build]({{ '/docs/tutorials/source-build/' | relative_url }}) |
 
-If you are here because something is slow, start with tutorial 2 before
-tutorial 3. Benchmarking a CPU fallback is the most common way to waste an
-afternoon with this project.
+All three are Windows. For Linux, the
+[Linux Quick Start]({{ '/docs/quickstart/linux/' | relative_url }}) and the
+[build page]({{ '/docs/quickstart/build/' | relative_url }}) cover the
+equivalent ground.
+
+<div class="note" markdown="1">
+**Every page ends with the same section, and it is the one to read first if
+something looks wrong.** ONNX Runtime does not fail when a provider cannot take
+a graph — it runs that part on the CPU and returns correct answers. A model that
+never reached the GPU therefore looks exactly like one that did, only slower.
+Benchmarking a CPU fallback is the most common way to waste an afternoon with
+this project.
+</div>
 
 <div class="note note--warn" markdown="1">
 **These pages have not been executed end to end on hardware yet.** Every command,
-flag and environment variable below was read out of the hip-ep source tree rather
-than invented, and corrections found while dry-running the
+flag and environment variable was read out of the hip-ep source tree, its CI
+workflows and the release artifacts rather than invented, and corrections found
+while dry-running the
 [Windows Quick Start]({{ '/docs/quickstart/windows/' | relative_url }}) on a
 Ryzen AI Max have been applied here — but the tutorials themselves are still
 pending a run of their own. If a command does not behave as described, that is a

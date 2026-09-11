@@ -668,6 +668,12 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
 .note > :last-child { margin-bottom: 0; }
 
 .card-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin: 1.5rem 0; }
+/* An odd number of cards in the two-column docs body leaves the last one a
+   half-width orphan, which reads as a card that failed to load rather than as
+   the end of a list. Spanning it makes the shortfall deliberate. The docs
+   column is never wide enough for a third column, so this only ever fires on
+   the two-column layout -- and at one column the span is already the row. */
+.card-grid--fill > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 .card {
   padding: 1.15rem; background: var(--surface);
   border: 1px solid var(--border); border-radius: var(--radius-lg);

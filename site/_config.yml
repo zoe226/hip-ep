@@ -128,16 +128,12 @@ docs_nav:
     children:
       - label: Overview
         url: "/docs/tutorials/"
-      - label: Run an LLM with GenAI
-        url: "/docs/tutorials/genai-llm/"
-      - label: Prove the GPU ran it
-        url: "/docs/tutorials/verify-gpu/"
-      - label: Benchmark your own model
-        url: "/docs/tutorials/benchmark/"
-      - label: Bring your own ONNX model
-        url: "/docs/tutorials/bring-your-own-model/"
-      - label: Look inside the compiler
-        url: "/docs/tutorials/inside-the-compiler/"
+      - label: C++ package
+        url: "/docs/tutorials/cpp-package/"
+      - label: Python package
+        url: "/docs/tutorials/python-package/"
+      - label: Source build
+        url: "/docs/tutorials/source-build/"
 
   - label: Models
     url: "/docs/models/"
