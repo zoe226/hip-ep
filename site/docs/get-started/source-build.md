@@ -367,4 +367,3 @@ PR, AI-disclosure and commit-trailer requirements.
 - [Run models from Python]({{ '/docs/get-started/python-package/' | relative_url }}) — the wheel workflow in full.
 - [Model matrix]({{ '/docs/models/' | relative_url }}) — what is validated each release.
 - [Pass menu]({{ site.repo_url }}/blob/main/docs/pipeline_pass_menu.md) — pass ordering and the plugin slots, once you are changing the compiler rather than running it.
-- [`docs/quick_start_linux.md`]({{ site.repo_url }}/blob/main/docs/quick_start_linux.md) and [`docs/quick_start_mi350.md`]({{ site.repo_url }}/blob/main/docs/quick_start_mi350.md) — building and running on Linux, including `gfx950` (MI350X), which is wave64 and differs in a few places from the RDNA parts.

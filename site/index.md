@@ -75,11 +75,11 @@ description: >-
         </article>
         <article class="deck__slide" data-deck-slide>
           <p class="deck__kicker">Hardware</p>
-          <p class="deck__stat">4</p>
-          <p class="deck__title">AMD GPU architectures</p>
+          <p class="deck__stat">3</p>
+          <p class="deck__title">RDNA 3.5 GPU architectures</p>
           <p class="deck__body">
-            Ryzen AI Max (Strix Halo), Ryzen AI (Strix Point and Krackan Point),
-            and Instinct MI350X.
+            Ryzen AI Max (Strix Halo) and Ryzen AI (Strix Point, Krackan Point)
+            — all three in one Windows download, with no architecture to pick.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
@@ -163,9 +163,9 @@ description: >-
 {%- comment -%}
 Directly under the models, and with the section's own top padding removed, so
 the two read as one thought: here is what runs, and here is what it runs on.
-The exceptions used to be three paragraphs; they are the same three facts, but
-a reader checking whether their own GPU is on the list is scanning the table,
-not reading around it.
+A reader checking whether their own GPU is on the list is scanning the table,
+not reading around it, so the prose under it is two sentences: what the one
+package covers, and what happens if you are not in the table.
 {%- endcomment -%}
 <section class="section section--attached">
   <div class="section__inner">
@@ -173,7 +173,7 @@ not reading around it.
 
 {%- comment -%}
 Full-width column so this heading starts on the same line as the models above
-it, but the table itself is capped: four rows of two short cells stretched to
+it, but the table itself is capped: three rows of two short cells stretched to
 the full page width is a lot of ruled whitespace between a GPU and its
 architecture.
 {%- endcomment -%}
@@ -184,21 +184,14 @@ architecture.
 | Ryzen AI Max ("Strix Halo") | `gfx1151` |
 | Ryzen AI ("Strix Point") | `gfx1150` |
 | Ryzen AI ("Krackan Point") | `gfx1152` |
-| Instinct MI350X | `gfx950` |
 
 </div>
 
     <p class="table-note">
-      Prebuilt packages cover all three Ryzen AI parts on Windows and Ryzen AI
-      Max on Linux; the rest are a
-      <a href="{{ '/docs/get-started/source-build/' | relative_url }}">source build</a>.
-      MI350X is Linux only, and Linux is documented in the repository rather
-      than here — see
-      <a href="{{ site.repo_url }}/blob/main/docs/quick_start_linux.md"><code>docs/quick_start_linux.md</code></a>.
-      Only <code>gfx1151</code> ships hipBLASLt and rocBLAS tuning data, so read
-      Strix Point and Krackan Point GEMM performance as uncharacterized rather
-      than representative. A GPU that is not in this table will still build, but
-      nothing in CI exercises it.
+      One Windows package covers all three, which is why it has no architecture
+      suffix. A GPU that is not in this table will still
+      <a href="{{ '/docs/get-started/source-build/' | relative_url }}">build from
+      source</a>, but nothing in CI exercises it.
     </p>
   </div>
 </section>
