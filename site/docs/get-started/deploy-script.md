@@ -106,12 +106,6 @@ The one exception is Python: if the `onnx` package is missing, the script
 installs it into whichever interpreter is on `PATH`, because step 4 needs it.
 hip-ep itself does not — only the verification does.
 
-**It does not cover Linux.** The Linux package needs a ROCm runtime it
-deliberately does not bundle, and the correct way to get one differs by
-distribution. See
-[`docs/quick_start_linux.md`]({{ site.repo_url }}/blob/main/docs/quick_start_linux.md)
-in the repository.
-
 ## For agents
 
 The script is non-interactive, takes no input on stdin, and is safe to re-run.
