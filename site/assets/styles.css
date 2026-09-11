@@ -270,17 +270,60 @@ img { max-width: 100%; height: auto; }
 
 /* Full-size, full-contrast nav type. The links are the primary way around the
    site, and set a step down in muted grey they read as fine print next to the
-   brand rather than as the site's own table of contents. */
-.site-nav { display: flex; gap: 1.5rem; margin-right: auto; }
-.site-nav__link { color: var(--text); font-weight: 600; font-size: var(--step-0); letter-spacing: -.01em; }
+   brand rather than as the site's own table of contents.
+
+   margin-left rather than margin-right: the nav sits against the actions on the
+   right, and the brand takes the whole left. A row of section names starting an
+   inch after the wordmark reads as part of the wordmark. */
+.site-nav { display: flex; align-self: stretch; align-items: stretch; gap: 1.5rem; margin-left: auto; }
+.site-nav__link {
+  display: inline-flex; align-items: center; gap: .3rem;
+  color: var(--text); font-weight: 600; font-size: var(--step-0); letter-spacing: -.01em;
+}
 .site-nav__link:hover { color: var(--accent); text-decoration: none; }
 
-.site-header__actions { display: flex; align-items: center; gap: .55rem; }
-.site-header__cta {
-  font-size: var(--step--1); color: var(--text-muted);
-  padding: .35rem .85rem; border: 1px solid var(--border); border-radius: 999px;
+/* The dropdown is opened by CSS, not by script: :hover for pointers and
+   :focus-within for keyboards. That is the whole interaction, so the menu still
+   works with JavaScript off -- the script only keeps aria-expanded honest and
+   adds Escape. The group is stretched to the full header height so the pointer
+   never crosses dead space on its way from the trigger down into the menu. */
+.site-nav__group { position: relative; display: flex; }
+.site-nav__trigger {
+  background: transparent; border: 0; padding: 0; cursor: pointer;
+  font-family: inherit; line-height: inherit;
 }
-.site-header__cta:hover { color: var(--text); border-color: var(--border-strong); text-decoration: none; }
+.site-nav__chevron { width: .7em; height: .7em; transition: transform .15s ease; }
+.site-nav__group:hover .site-nav__chevron,
+.site-nav__group:focus-within .site-nav__chevron { transform: rotate(180deg); }
+
+.site-nav__menu {
+  position: absolute; top: 100%; right: 0; z-index: 60;
+  display: grid; min-width: 11rem; padding: .35rem;
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md); box-shadow: var(--shadow);
+  opacity: 0; visibility: hidden; transform: translateY(-.35rem);
+  transition: opacity .14s ease, transform .14s ease, visibility .14s;
+}
+.site-nav__group:hover > .site-nav__menu,
+.site-nav__group:focus-within > .site-nav__menu {
+  opacity: 1; visibility: visible; transform: none;
+}
+.site-nav__menu-link {
+  padding: .45rem .7rem; border-radius: var(--radius-sm); white-space: nowrap;
+  color: var(--text-muted); font-size: var(--step-0);
+}
+.site-nav__menu-link:hover { color: var(--text); background: var(--bg-elevated); text-decoration: none; }
+
+.site-header__actions { display: flex; align-items: center; gap: .55rem; }
+/* Icon-only, and matched to the theme toggle so the right edge of the header is
+   one row of same-sized circles rather than pills of three different widths.
+   The label survives as aria-label and title -- see _includes/header.html. */
+.site-header__icon {
+  display: inline-grid; place-items: center; width: 32px; height: 32px;
+  border: 1px solid var(--border); border-radius: 50%; color: var(--text-muted);
+}
+.site-header__icon:hover { color: var(--text); border-color: var(--border-strong); text-decoration: none; }
+.site-header__icon svg { display: block; width: 15px; height: 15px; }
 
 .theme-toggle {
   display: inline-grid; place-items: center; width: 32px; height: 32px;
@@ -298,16 +341,16 @@ html[data-theme="light"] .theme-toggle__icon--light { display: none; }
 
 .site-nav-mobile { display: none; flex-direction: column; padding: .5rem 1.25rem 1rem; border-top: 1px solid var(--border); }
 .site-nav-mobile__link { padding: .55rem 0; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-
-/* The nav is now set at body size, so it needs the room the three external CTAs
-   were using before the hamburger takes over. Nothing is lost: every one of
-   them is in the footer, and in the mobile menu below 860px. */
-@media (max-width: 1080px) {
-  .site-header__cta { display: none; }
+.site-nav-mobile__heading {
+  margin: .85rem 0 .1rem; font-size: var(--step--1); font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted);
 }
 
+/* The header no longer competes for width -- one nav word and three 32px
+   circles -- so the only breakpoint left is the one that swaps the nav for the
+   hamburger. The icons stay: they are narrower than the labels they replaced. */
 @media (max-width: 860px) {
-  .site-nav, .site-header__cta { display: none; }
+  .site-nav { display: none; }
   .nav-toggle { display: flex; }
   .site-nav-mobile:not([hidden]) { display: flex; }
   .site-header__actions { margin-left: auto; }

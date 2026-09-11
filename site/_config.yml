@@ -76,16 +76,30 @@ defaults:
 # ── Global header navigation ────────────────────────────────────────────────
 # Only pages that exist are listed, so the published site never links into a
 # 404.
+#
+# One entry, because four top-level words next to the brand read as four
+# unrelated destinations when they are really one documentation set. An entry
+# with "children" renders as a dropdown; the children are the sections, in
+# reading order. Models points at the model wall rather than /docs/models/ --
+# the wall is the page a reader wants from the header, and the docs page is
+# one click away from it and from the sidebar.
 nav_links:
   - label: Docs
-    url: "/docs/"
-  - label: Get Started
-    url: "/docs/get-started/"
-  - label: Models
-    url: "/models/"
-  - label: Benchmarks
-    url: "/docs/benchmarks/"
+    children:
+      - label: Overview
+        url: "/docs/"
+      - label: Get Started
+        url: "/docs/get-started/"
+      - label: Models
+        url: "/models/"
+      - label: Benchmarks
+        url: "/docs/benchmarks/"
 
+# Rendered as icon-only buttons in the header, so each needs an "icon" that
+# _includes/header.html knows how to draw -- adding a link with an unknown
+# icon renders a blank button. The label survives as the accessible name.
+# Issues is deliberately not here: it is a place to write, not a place to
+# read, and it stays in the footer.
 cta_links:
   - label: GitHub
     url: "https://github.com/ROCm/hip-ep"
@@ -93,9 +107,6 @@ cta_links:
   - label: Releases
     url: "https://github.com/ROCm/hip-ep/releases"
     icon: download
-  - label: Issues
-    url: "https://github.com/ROCm/hip-ep/issues"
-    icon: bug
 
 # ── Documentation sidebar ───────────────────────────────────────────────────
 # Hand-maintained, and it also drives the previous/next pager in

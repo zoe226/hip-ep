@@ -51,6 +51,48 @@
     });
   }
 
+  /* ------------------------------------------------------- header dropdown */
+
+  /* The header dropdown opens and closes entirely in CSS, on :hover and
+     :focus-within, so that it works with this file absent. What CSS cannot do
+     is tell a screen reader whether the menu is showing, so that is all this
+     does -- mirror the CSS state into aria-expanded, and add the Escape key,
+     which keyboard users expect and :focus-within alone will not give them. */
+  function initHeaderDropdown() {
+    var groups = document.querySelectorAll('[data-nav-dropdown]');
+
+    Array.prototype.forEach.call(groups, function (group) {
+      var trigger = group.querySelector('[data-nav-dropdown-toggle]');
+      var menu = group.querySelector('[data-nav-dropdown-menu]');
+      if (!trigger || !menu) return;
+
+      function sync(open) {
+        trigger.setAttribute('aria-expanded', String(open));
+      }
+
+      group.addEventListener('mouseenter', function () { sync(true); });
+      group.addEventListener('mouseleave', function () {
+        sync(group.contains(document.activeElement));
+      });
+      group.addEventListener('focusin', function () { sync(true); });
+      group.addEventListener('focusout', function () {
+        /* focusout fires before the new element takes focus, so the check has
+           to wait a tick or activeElement is still <body>. */
+        window.setTimeout(function () {
+          if (!group.contains(document.activeElement)) sync(false);
+        }, 0);
+      });
+      group.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape' && event.key !== 'Esc') return;
+        /* Moving focus out of the group is what actually closes it, because
+           :focus-within is what is holding it open -- returning focus to the
+           trigger, which is the usual pattern, would keep it open instead. */
+        if (group.contains(document.activeElement)) document.activeElement.blur();
+        sync(false);
+      });
+    });
+  }
+
   /* --------------------------------------------------------- copy buttons */
 
   function initCodeCopy() {
@@ -446,6 +488,7 @@
   function boot() {
     initTheme();
     initMobileNav();
+    initHeaderDropdown();
     initCodeCopy();
     initToc();
     initSearch();
