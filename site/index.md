@@ -121,13 +121,15 @@ description: >-
       suite — brought up on the hardware and checked for function, performance
       and accuracy before {{ snap.release }} ships, with a regression in any of
       the three blocking the release.
+      {%- if snap.placeholder %}
+      Time to first token is measured for all of them and not published yet,
+      which is why that line is empty.
+      {%- endif %}
     </p>
     <p>
-      The fifty-plus in the panel above is everything that has been brought up
-      and measured on the hardware, on Strix Halo. Sixteen of those are the
-      <em>official matrix</em> — the models that gate every release on function,
-      performance and accuracy. Seven of the sixteen are below; the rest are on
-      the <a href="{{ '/docs/models/' | relative_url }}">model matrix</a>.
+      Six of the sixteen in the official matrix are below. The rest of the
+      matrix, and the fifty-plus models brought up on Strix Halo behind it, are
+      on the <a href="{{ '/docs/models/' | relative_url }}">model matrix</a>.
     </p>
 
     <div class="badge-row">

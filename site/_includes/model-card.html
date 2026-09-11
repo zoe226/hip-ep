@@ -8,10 +8,12 @@ is the point: the two must not drift apart.
 Parameters:
   m        -- an entry from _data/models.yml (llm or vlm)
   kind     -- the label above the name, "LLM" or "VLM"
-  compact  -- truthy on the landing wall: drops the tagline and the precision,
-              leaving name, architecture and the two figures. A wall of cards is
-              scanned, not read, and prose in every cell is what stops it being
-              scannable. /models/ passes nothing and gets the full card, because
+  compact  -- truthy on the landing wall. The compact card carries four things
+              and nothing else: what kind of model it is, whether it is dense
+              or sparse, its name, and its time to first token. A wall of cards
+              is scanned rather than read, and every extra line of small grey
+              type is another thing the eye has to reject before it finds the
+              name. /models/ passes nothing and gets the full card, because
               that page is where someone has already decided to read.
 
 Everything else is derived here rather than passed in, so a caller cannot
@@ -34,13 +36,43 @@ copy of the same numbers in the data file.
 {%- assign param_parts = include.m.params | split: ", " -%}
 {%- assign param_total = param_parts[0] | split: " " | first -%}
 {%- assign param_active = param_parts[1] | split: " " | first -%}
-<article class="card model-card{% if include.compact %} model-card--compact{% endif %}">
+{%- comment -%}
+Dense or sparse, in one word, matched on `arch` because that is the field that
+describes the architecture -- every sparse entry spells out "mixture of
+experts" whatever else it says. It is the one architectural fact worth a
+glance on a wall: it is why a 120B model generates faster than a 70B one.
+{%- endcomment -%}
+{%- if include.m.arch contains "mixture of experts" -%}
+{%- assign family = "MoE" -%}
+{%- else -%}
+{%- assign family = "Dense" -%}
+{%- endif -%}
+{%- if include.compact -%}
+<article class="card model-card model-card--compact">
+  <p class="model-card__kind">{{ include.kind }} &middot; {{ family }}</p>
+  <h3 class="model-card__name">{% if include.m.hf %}<a href="https://huggingface.co/{{ include.m.hf }}">{{ include.m.name }}</a>{% else %}{{ include.m.name }}{% endif %}</h3>
+  {%- comment -%}
+  The slot stays whether or not there is a number to put in it, so the wall
+  does not change shape when the snapshot is published -- and so the card is
+  visibly missing a measurement rather than silently not making a claim.
+  {%- endcomment -%}
+  <dl class="model-card__metrics model-card__metrics--single">
+    <div>
+      <dt>Time to first token</dt>
+      {%- if snap.placeholder %}
+      <dd aria-label="Not published yet">&mdash;</dd>
+      {%- else %}
+      <dd>{{ b.ttft[col] }} <span>s &middot; {{ quoted_len }}-token prompt</span></dd>
+      {%- endif %}
+    </div>
+  </dl>
+</article>
+{%- else -%}
+<article class="card model-card">
   <p class="model-card__kind">{{ include.kind }}{% if include.m.status != 'Validated' %} &middot; New in {{ snap.release }}{% endif %}</p>
   <h3 class="model-card__name">{% if include.m.hf %}<a href="https://huggingface.co/{{ include.m.hf }}">{{ include.m.name }}</a>{% else %}{{ include.m.name }}{% endif %}</h3>
-  <p class="model-card__meta">{% unless snap.placeholder %}{{ include.m.params }} &middot; {% endunless %}{{ include.m.arch }}{% unless include.compact %} &middot; {{ include.m.precision }}{% endunless %}</p>
-  {%- unless include.compact %}
+  <p class="model-card__meta">{% unless snap.placeholder %}{{ include.m.params }} &middot; {% endunless %}{{ include.m.arch }} &middot; {{ include.m.precision }}</p>
   <p class="card__body">{{ include.m.tagline }}</p>
-  {%- endunless %}
   {%- if snap.placeholder %}
   {%- comment -%}
   Performance is withheld this release, and a headline metric reading "0" looks
@@ -64,7 +96,7 @@ copy of the same numbers in the data file.
       {%- endif %}
     </div>
   </dl>
-  <p class="model-card__cond">{% if include.compact %}Performance pending approval{% else %}Throughput and latency pending release approval{% endif %}</p>
+  <p class="model-card__cond">Throughput and latency pending release approval</p>
   {%- else %}
   <dl class="model-card__metrics">
     <div>
@@ -79,3 +111,4 @@ copy of the same numbers in the data file.
   <p class="model-card__cond">{{ quoted_len }}-token prompt &middot; {{ snap.release }}</p>
   {%- endif %}
 </article>
+{%- endif -%}

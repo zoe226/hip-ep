@@ -758,10 +758,11 @@ a.card--link:hover .card__title::after { color: var(--accent); }
 .model-card__name { margin: 0 0 .2rem; font-size: var(--step-1); line-height: 1.25; }
 .model-card__meta { margin: 0 0 .7rem; font-size: var(--step--1); color: var(--text-faint); }
 .model-card .card__body { flex: 1; margin-bottom: .9rem; }
-/* The compact card drops the tagline, which was also the element pushing the
-   measurement strip to the bottom of the card. The meta line takes that job so
-   the strips still line up across a row of unequal-length model names. */
-.model-card--compact .model-card__meta { flex: 1; margin-bottom: .9rem; }
+/* The compact card is down to a kind line, a name and one measurement, so the
+   name is what has to absorb the slack: a two-line model name next to a
+   one-line one would otherwise leave their measurement strips on different
+   baselines, and the strips are what the row is scanned along. */
+.model-card--compact .model-card__name { flex: 1; margin-bottom: .9rem; }
 
 /* The measurement strip. Values are tabular so the numbers line up across
    cards in the grid, which is what makes the wall scannable at all. */
@@ -769,6 +770,7 @@ a.card--link:hover .card__title::after { color: var(--accent); }
   display: grid; grid-template-columns: 1fr 1fr; gap: .5rem;
   margin: 0; padding-top: .8rem; border-top: 1px solid var(--border);
 }
+.model-card__metrics--single { grid-template-columns: 1fr; }
 .model-card__metrics > div { margin: 0; }
 .model-card__metrics dt {
   font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em;

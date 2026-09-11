@@ -14,8 +14,10 @@
 # that are not all public, so naming the base model plus the quantization is
 # both accurate and linkable. `hf` is the base model's repository.
 #
-# `highlight: true` promotes a model onto the card wall at /models/. Keep that
-# set small -- it is a showcase, not a second copy of the matrix.
+# `highlight: true` promotes a model onto the card wall at /models/ and onto the
+# landing page. Keep that set small -- it is a showcase, not a second copy of
+# the matrix -- and keep it a multiple of three, because both walls lay out
+# three to a row and a seventh card sits alone on a row of its own.
 
 llm:
   - id: gpt-oss-20b
@@ -52,7 +54,6 @@ llm:
     task: Code generation
     precision: int4 RTN, group 128
     status: Validated
-    highlight: true
     tagline: >-
       A coding assistant that fits in local memory and holds a 16K-token file in
       its context without falling over.
