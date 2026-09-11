@@ -249,9 +249,15 @@ img { max-width: 100%; height: auto; }
   width: min(100% - 2 * var(--page-pad), var(--maxw)); margin-inline: auto;
   display: flex; align-items: center; gap: 1.75rem; height: 68px;
 }
+/* Off the type scale on purpose, and roughly two thirds of the hero headline at
+   full width -- the ratio the reference site uses. At --step-1 the lockup was
+   less than half the headline, which read as a small label stuck above a large
+   one rather than as the site's name. Weight drops to 600 as the size goes up:
+   700 at 2rem is a shout, and the wordmark beside it is not bold. */
 .brand {
-  display: inline-flex; align-items: center; gap: .4rem; flex: none;
-  font-weight: 700; font-size: var(--step-1); letter-spacing: -.02em; color: var(--text);
+  display: inline-flex; align-items: center; gap: .34em; flex: none;
+  font-weight: 600; font-size: clamp(1.45rem, 1.1rem + 1vw, 2rem);
+  line-height: 1.1; letter-spacing: -.02em; color: var(--text);
 }
 .brand:hover { text-decoration: none; }
 .brand__mark { color: var(--accent); }
@@ -259,7 +265,7 @@ img { max-width: 100%; height: auto; }
 /* This is an AMD project and the lockup is the only place that says so above
    the fold. The hairline is what keeps the wordmark from reading as the first
    syllable of the product name. */
-.brand__org { display: inline-flex; align-items: center; gap: .45rem; color: var(--text); }
+.brand__org { display: inline-flex; align-items: center; gap: .4em; color: var(--text); }
 .brand__org::after {
   content: ""; width: 1px; height: 1.15em; background: var(--border-strong);
 }
