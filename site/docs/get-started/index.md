@@ -72,35 +72,12 @@ old is a common source of otherwise-inexplicable launch failures. Install the
 current [AMD Adrenalin driver](https://www.amd.com/en/support) if you have not
 lately.
 
-<div class="note" markdown="1">
-**A caveat specific to `gfx1150` and `gfx1152`.** The package ships hipBLASLt
-and rocBLAS tuning data for `gfx1151` only. Models run on the other two parts,
-but GEMM-heavy workloads are not selecting tuned kernels for the hardware they
-are on — read their performance as uncharacterized rather than representative.
-</div>
-
 ## Before you start
-
-Three things are worth knowing up front, because each produces a confusing
-symptom rather than a clear error.
 
 **Windows needs no separate ROCm install.** The Windows archive bundles the HIP
 runtime, the code-object manager, hipBLASLt, rocBLAS and MIOpen alongside the
 EP. A current Adrenalin driver plus one download is the whole installation.
 Budget 232 MB down and about 610 MB extracted.
-
-**The first inference of any model is slow.** That is hip-ep compiling the
-graph, and on a large model it can take minutes. It is not a hang. Note that
-`{{ site.hip_ep_version }}` has no on-disk artifact cache, so a fresh process
-pays that cost again.
-
-**A wrong setup usually produces correct results, slowly.** ONNX Runtime does
-not fail when a provider cannot take a graph — it runs that part on the CPU and
-returns correct answers. A model that never reached the GPU therefore looks
-exactly like one that did, only slower, and benchmarking a CPU fallback is the
-most common way to waste an afternoon with this project. Every page here ends
-with an explicit check, and it is the one to read first when something looks
-wrong.
 
 ## What you get
 
@@ -116,24 +93,3 @@ The same set of tools, whichever route you take:
 
 Nothing installs into system directories and nothing is registered globally.
 Deleting the extracted directory removes hip-ep completely.
-
-<div class="note" markdown="1">
-**These pages are Windows.** hip-ep runs on Linux too — that is where MI350X
-(`gfx950`) is supported — but the Linux path is not yet written up here. Use
-[`docs/quick_start_linux.md`]({{ site.repo_url }}/blob/main/docs/quick_start_linux.md)
-and [`docs/quick_start_mi350.md`]({{ site.repo_url }}/blob/main/docs/quick_start_mi350.md)
-in the repository until it is.
-</div>
-
-<div class="note note--warn" markdown="1">
-**Partly verified on hardware.** Installing the C++ package, generating the
-test model, running it, and the GPU-execution check were run end to end on
-2026-09-09 on a Ryzen AI Max (Radeon 8060S, `gfx1151`) on Windows 11 with
-driver `32.0.31035.1003`, against `{{ site.hip_ep_version }}`; the timings
-quoted on these pages come from that run. The model-specific sections have not
-had a run of their own — every command, flag and environment variable in them
-was read out of the hip-ep source tree, its CI workflows and the release
-artifacts rather than invented, but that is not the same thing. If a command
-does not behave as described, that is a documentation bug — please
-[open an issue]({{ site.repo_url }}/issues).
-</div>
