@@ -16,7 +16,7 @@ description: >-
   <div class="section__inner hero__grid">
     <div class="hero__main">
       <p class="kicker">ONNX Runtime Execution Provider</p>
-      <h1 class="headline-lg">The fastest, most efficient LLM inference on AMD GPUs</h1>
+      <h1 class="headline-lg">The fastest, most efficient LLM inference backend on AMD iGPU</h1>
       <p class="lede">
         hip-ep compiles your ONNX graph through an MLIR pipeline — ONNX dialect,
         to a custom HIP dialect, to LLVM IR — and executes it on AMD GPUs with
