@@ -46,9 +46,16 @@
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  /* Deliberately large. A 6px corner reads as a default rather than a choice,
+     which is most of why a hand-rolled site looks like a template. */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* The page gutter. Shared by the header, the footer, every .section__inner
+     and the inset of the raised panels, so those edges cannot drift apart. */
+  --page-pad: clamp(1.25rem, 3.5vw, 2.5rem);
 
   --maxw: 1200px;
   --maxw-narrow: 820px;
@@ -83,6 +90,11 @@ html[data-theme="dark"] {
   --ok: #4ade80;
   --ok-soft: rgba(74, 222, 128, 0.11);
   --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 8px 24px rgba(0, 0, 0, .35);
+  /* Wide and very soft: on a near-black page a tight shadow is invisible, so
+     the only way a surface reads as raised is a large blur radius. */
+  --shadow-lg: 0 32px 90px rgba(0, 0, 0, .55);
+  --glow: 0 6px 22px rgba(77, 163, 255, .28);
+  --bloom: rgba(77, 163, 255, .20);
 }
 
 html[data-theme="light"] {
@@ -106,6 +118,11 @@ html[data-theme="light"] {
   --ok: #1a7f45;
   --ok-soft: rgba(26, 127, 69, 0.09);
   --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 8px 24px rgba(16, 24, 40, .08);
+  /* Much weaker than the dark theme's. On white, a shadow at that opacity
+     reads as dirt rather than depth; the border carries the edge instead. */
+  --shadow-lg: 0 24px 60px rgba(16, 24, 40, .10);
+  --glow: 0 6px 20px rgba(11, 98, 214, .22);
+  --bloom: rgba(11, 98, 214, .13);
 }
 
 /* ==========================================================================
@@ -153,11 +170,39 @@ img { max-width: 100%; height: auto; }
 .page { display: flex; flex-direction: column; min-height: 100vh; }
 .page__inner { flex: 1; }
 
-.section { padding: clamp(2.5rem, 5vw, 4.5rem) 0; }
-.section--alt { background: var(--bg-elevated); }
+.section { padding: clamp(2.75rem, 6vw, 5rem) 0; }
+
+/* A raised panel rather than a full-bleed tint. Alternating background stripes
+   are what every documentation template does, and they read as one; a stack of
+   rounded surfaces with the page showing through between them reads as a page
+   somebody designed. Only the two marketing pages use this modifier. */
+.section--alt {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  /* The inset hairline is a lit top edge. On a dark page a panel that is only
+     a flat fill plus a border still reads as a rectangle of slightly different
+     grey; one bright pixel along the top is what makes it read as a surface. */
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, .05);
+  margin-inline: var(--page-pad);
+}
+/* Inside a panel the page gutter has already been spent on the inset, so the
+   inner column adds only the panel's own padding. Above roughly 1250px both
+   this and a full-bleed section clamp to --maxw, so their text aligns exactly;
+   below it the panel's text sits 24px further in, which is what content inside
+   a card should do anyway. */
+.section--alt > .section__inner { width: min(100% - 3rem, var(--maxw)); }
+.section--alt > .section__inner--narrow { width: min(100% - 3rem, var(--maxw-narrow)); }
+
+/* A panel's own padding is the section padding, so a first child that also
+   carries a top margin (.stat-row, .btn-row, .prose) doubles it and leaves the
+   panel looking half empty. */
+.section__inner > :first-child { margin-top: 0; }
+.section__inner > :last-child { margin-bottom: 0; }
+
 .section--docs { padding-top: 1.75rem; }
-.section__inner { width: min(100% - 2.5rem, var(--maxw)); margin-inline: auto; }
-.section__inner--narrow { width: min(100% - 2.5rem, var(--maxw-narrow)); }
+.section__inner { width: min(100% - 2 * var(--page-pad), var(--maxw)); margin-inline: auto; }
+.section__inner--narrow { width: min(100% - 2 * var(--page-pad), var(--maxw-narrow)); }
 
 /* ==========================================================================
    Typography helpers
@@ -184,7 +229,7 @@ img { max-width: 100%; height: auto; }
   border-bottom: 1px solid var(--border);
 }
 .site-header__inner {
-  width: min(100% - 2.5rem, var(--maxw)); margin-inline: auto;
+  width: min(100% - 2 * var(--page-pad), var(--maxw)); margin-inline: auto;
   display: flex; align-items: center; gap: 1.75rem; height: 68px;
 }
 .brand {
@@ -442,8 +487,8 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
   position: absolute; inset: -40% 0 auto -10%;
   height: 130%; pointer-events: none; z-index: -1;
   background:
-    radial-gradient(48rem 26rem at 18% 22%, var(--accent-soft), transparent 68%),
-    radial-gradient(38rem 22rem at 82% 8%, var(--accent-soft), transparent 72%);
+    radial-gradient(48rem 26rem at 18% 22%, var(--bloom), transparent 68%),
+    radial-gradient(38rem 22rem at 82% 8%, var(--bloom), transparent 72%);
 }
 .hero .lede { max-width: 56ch; }
 .hero .btn-row { margin-top: 1.75rem; }
@@ -473,7 +518,7 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
    stepping through the deck does not reflow the page under the pointer. Set
    once here rather than measured in script: a fixed floor is cheaper than a
    layout read on every resize, and the slides are hand-written. */
-.deck__viewport { flex: 1; min-height: 13.5rem; }
+.deck__viewport { flex: 1; min-height: 11.5rem; }
 .deck__slide + .deck__slide { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
 .deck.is-ready .deck__slide + .deck__slide { margin-top: 0; padding-top: 0; border-top: 0; }
 .deck__kicker {
@@ -512,11 +557,20 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
   display: inline-flex; align-items: center; gap: .45rem;
   padding: .6rem 1.15rem; border-radius: var(--radius-sm);
   font-weight: 600; font-size: var(--step--1); border: 1px solid transparent; cursor: pointer;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease, color .12s ease;
 }
-.btn--primary { background: var(--accent); color: var(--accent-contrast); }
-.btn--primary:hover { background: var(--accent-hover); color: var(--accent-contrast); text-decoration: none; }
+.btn--primary {
+  background: var(--accent); color: var(--accent-contrast); box-shadow: var(--glow);
+}
+.btn--primary:hover {
+  background: var(--accent-hover); color: var(--accent-contrast); text-decoration: none;
+  transform: translateY(-1px);
+}
 .btn--ghost { border-color: var(--border-strong); color: var(--text); }
-.btn--ghost:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.btn--ghost:hover {
+  border-color: var(--accent); color: var(--accent); text-decoration: none;
+  background: var(--accent-soft); transform: translateY(-1px);
+}
 .btn-row { display: flex; flex-wrap: wrap; gap: .65rem; margin: 1.25rem 0; }
 
 .badge {
@@ -558,10 +612,11 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
    like a target. */
 a.card--link {
   display: block; color: inherit; text-decoration: none;
-  transition: border-color .12s ease, background .12s ease;
+  transition: border-color .12s ease, background .12s ease, transform .12s ease, box-shadow .12s ease;
 }
 a.card--link:hover, a.card--link:focus-visible {
-  border-color: var(--border-strong); background: var(--bg-elevated); text-decoration: none;
+  border-color: var(--accent); background: var(--bg-elevated); text-decoration: none;
+  transform: translateY(-2px); box-shadow: var(--shadow);
 }
 a.card--link:hover .card__title, a.card--link:focus-visible .card__title { color: var(--accent); }
 a.card--link .card__title::after { content: " \2192"; color: var(--text-faint); }
@@ -639,8 +694,14 @@ a.card--link:hover .card__title::after { color: var(--accent); }
 .split__col .btn-row { margin-bottom: 0; }
 
 .stat-row { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin: 1.75rem 0; }
-.stat { padding: 1rem 1.15rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
-.stat__value { display: block; font-size: var(--step-2); font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.stat { padding: 1.15rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+/* Accent rather than body colour. These four numbers are the only thing on the
+   page a visitor is guaranteed to read, and in a page this monochrome they are
+   also the only chance to use the accent for something other than a link. */
+.stat__value {
+  display: block; font-size: var(--step-2); font-weight: 700; letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums; color: var(--accent); line-height: 1.15;
+}
 .stat__label { display: block; margin-top: .15rem; font-size: var(--step--1); color: var(--text-muted); }
 
 .docs-pager { display: flex; gap: 1rem; margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
@@ -662,7 +723,7 @@ a.card--link:hover .card__title::after { color: var(--accent); }
 
 .site-footer { border-top: 1px solid var(--border); background: var(--bg-elevated); margin-top: auto; }
 .site-footer__inner {
-  width: min(100% - 2.5rem, var(--maxw)); margin-inline: auto;
+  width: min(100% - 2 * var(--page-pad), var(--maxw)); margin-inline: auto;
   display: flex; flex-wrap: wrap; gap: 2.5rem; padding: 2.5rem 0 1.75rem;
 }
 .site-footer__brand { flex: 1 1 240px; }
@@ -676,7 +737,7 @@ a.card--link:hover .card__title::after { color: var(--accent); }
   letter-spacing: .08em; text-transform: uppercase; color: var(--text-faint);
 }
 .site-footer__legal {
-  width: min(100% - 2.5rem, var(--maxw)); margin-inline: auto;
+  width: min(100% - 2 * var(--page-pad), var(--maxw)); margin-inline: auto;
   padding: 1rem 0 2rem; border-top: 1px solid var(--border);
   display: flex; flex-wrap: wrap; gap: .35rem 1.5rem;
   font-size: var(--step--1); color: var(--text-faint);
