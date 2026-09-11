@@ -60,20 +60,16 @@ unverified rather than as a measurement.
 |---|---|---|---|
 | TTFT | seconds | Lower is better | Time from submitting the prompt to the first generated token. Dominated by prefill, so it grows with prompt length. |
 | TPS | tokens/second | Higher is better | Steady-state generation rate after the first token. Dominated by memory bandwidth. |
-| RTF | ratio | Lower is better | Wall-clock seconds spent per second of audio. 0.05 means a minute of audio transcribes in three seconds. |
-| First infer | milliseconds | Lower is better | The first call, which includes compiling the graph. Not a steady-state number. |
-| Average infer | milliseconds | Lower is better | Mean of the calls after the first. This is the number to compare. |
-| QPS | queries/second | Higher is better | Sustained throughput with the harness's own batching, which is why it is not simply 1000 ÷ average infer. |
 
-The gap between *first infer* and *average infer* is the point of the
-architecture, not a defect: hip-ep compiles the graph on first use, and every
-call after that runs compiled code. The compiled artifact lives for the life of
-the session — in {{ site.hip_ep_version }} there is no on-disk cache, so a new
-process pays the compile again. See the
+Neither figure includes the compile. hip-ep compiles the graph on first use and
+every call after that runs compiled code, so the first request of a session is
+not a steady-state measurement and is excluded from both columns. The compiled
+artifact lives for the life of the session — in {{ site.hip_ep_version }} there
+is no on-disk cache, so a new process pays the compile again. See the
 [overview]({{ '/docs/' | relative_url }}) for what happens during that first
 call.
 
-## Language and vision-language models
+## The numbers
 
 Prompt lengths are {{ lens | join: ", " }} tokens.
 
@@ -100,55 +96,19 @@ a much higher TTFT at 128 tokens than the language models do: that figure
 includes running the image through the vision encoder, which happens once and
 before any text is generated.
 
-## Speech recognition
-
-Whisper transcription, measured end to end. `large-v3` appears twice because it
-is validated at two precisions.
-
-<div class="table-scroll" markdown="1">
-
-| Model | Precision | TTFT (s) | TPS | RTF |
-|---|---|---:|---:|---:|
-{% for row in site.data.benchmarks.speech -%}
-{% assign m = site.data.models.speech | where: "id", row.id | first -%}
-| {{ m.name | default: row.id }} | {{ m.precision }} | {{ row.ttft }} | {{ row.tps }} | {{ row.rtf }} |
-{% endfor %}
-
-</div>
-
-{% assign turbo = site.data.benchmarks.speech | where: "id", "whisper-large-v3-turbo-fp16" | first -%}
-RTF is the number to read here. At {{ turbo.rtf }} on `large-v3-turbo`, an hour
-of audio transcribes in roughly {{ turbo.rtf | times: 3600 | divided_by: 60.0 | round: 1 }} minutes
-— on an integrated GPU, with nothing leaving the machine.
-
-## Vision models
-
-Single-graph models: one forward pass, one result. Several appear at more than
-one resolution or batch size, which are genuinely different workloads.
-
-<div class="table-scroll" markdown="1">
-
-| Model | Task | First infer (ms) | Average infer (ms) | QPS |
-|---|---|---:|---:|---:|
-{% for row in site.data.benchmarks.vision -%}
-{% assign m = site.data.models.vision | where: "id", row.id | first -%}
-| {{ m.name | default: row.id }} | {{ m.task }} | {{ row.first_infer }} | {{ row.avg_infer }} | {{ row.qps }} |
-{% endfor %}
-
-</div>
-
-The first-infer column is where the compiler shows up, and it is not
-proportional to the model: a small graph with an unusual operator can spend
-longer being compiled than a large graph made of familiar ones. Compare average
-infer, not first infer, unless what you care about is process startup.
-
 ## What is not on this page
 
-The Procyon AI Inference Benchmark is part of the release validation suite, and
-in {{ snap.release }} it is at *functionality verified, optimization in
-progress* — the workloads run and produce correct results, and the performance
-work has not been done yet. Publishing those numbers now would characterise
-a deliberately unoptimized path, so they are not here.
+Sixteen generative models, and nothing else. The release validation suite is
+wider than that, and this page is deliberately not: TTFT and TPS are the two
+numbers that describe what it is like to use a model, and a page that mixes
+them with per-inference latencies for a different class of workload invites
+comparisons between figures that do not mean the same thing.
+
+The Procyon AI Inference Benchmark is also part of the suite, and in
+{{ snap.release }} it is at *functionality verified, optimization in progress* —
+the workloads run and produce correct results, and the performance work has not
+been done yet. Publishing those numbers now would characterise a deliberately
+unoptimized path, so they are not here either.
 
 ## How these were measured
 
@@ -162,8 +122,8 @@ comparable to these:
   `HIPDNN_EP_DEBUG=1` change what is measured. They are off.
 - **Kernel autotune caches are primed first.** A cold autotune cache measures
   the tuner, not the kernel.
-- **The first inference is excluded from steady-state figures**, and reported
-  separately where it is reported at all.
+- **The first inference is excluded.** It includes compiling the graph, which
+  is a one-off cost and not a property of the model.
 
 One condition is not controlled and cannot be: **thermal state**. On a
 compute-bound workload in a thin chassis, back-to-back runs drift downward as
@@ -177,11 +137,10 @@ fast relative to each other, and how each degrades with prompt length.
 
 ## Reproducing them
 
-The tools are in the release package —
-`onnxruntime_perf_test` for single graphs and `model_benchmark` for generative
-models on Windows. The
+The tool is in the release package: `model_benchmark` on Windows, which drives
+the model through OGA and reports TTFT and TPS directly. The
 [C++ package]({{ '/docs/get-started/cpp-package/' | relative_url }}) page covers
-both, along with the flags that make a measurement comparable to these.
+it, along with the flags that make a measurement comparable to these.
 
 <div class="note note--warn" markdown="1">
 Before trusting a number you measured yourself, confirm the graph actually ran

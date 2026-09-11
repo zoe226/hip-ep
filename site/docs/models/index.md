@@ -11,8 +11,9 @@ release rather than being discovered by users afterwards.
 Anything not on this page may still work. Plenty does. It just has not been
 measured, so nobody can tell you in advance whether it will.
 
-This page is the complete list. For a shorter, opinionated selection with the
-numbers attached, see the [model showcase]({{ '/models/' | relative_url }}).
+This page is the complete generative matrix: sixteen models, eight of them
+vision-language. For a shorter, opinionated selection with the numbers
+attached, see the [model showcase]({{ '/models/' | relative_url }}).
 
 ## What gets checked
 
@@ -65,42 +66,9 @@ attention. Neither is a stock transformer, and neither needed a new operator
 library: they compile through the same pipeline as everything else on this
 page. That is the argument for a compiler, stated as a fact instead of a claim.
 
-## Speech recognition
-
-<div class="table-scroll" markdown="1">
-
-| Model | Precision |
-|---|---|
-{% for m in site.data.models.speech -%}
-| {% if m.hf %}[{{ m.name }}](https://huggingface.co/{{ m.hf }}){% else %}{{ m.name }}{% endif %} | {{ m.precision }} |
-{% endfor %}
-
-</div>
-
-`large-v3` is validated at both fp16 and fp32. The pair exists because the fp32
-path is the accuracy reference: if a quantization or kernel change moves fp16
-output, the fp32 run is what says whether the model or the runtime moved.
-
-## Vision models
-
-These are not generative. One forward pass produces one result, so they are
-measured per inference rather than per token — and several appear at more than
-one input resolution or batch size, because those are different workloads with
-different bottlenecks rather than the same model twice.
-
-<div class="table-scroll" markdown="1">
-
-| Model | Task |
-|---|---|
-{% for m in site.data.models.vision -%}
-| {% if m.hf %}[{{ m.name }}](https://huggingface.co/{{ m.hf }}){% else %}{{ m.name }}{% endif %} | {{ m.task }} |
-{% endfor %}
-
-</div>
-
 ## What "int4" means here
 
-Every generative model in the matrix is quantized. The weights are 4-bit
+Every model in the matrix is quantized. The weights are 4-bit
 integers grouped along the input dimension, with a scale — and for asymmetric
 schemes a zero point — per group. Activations stay in fp16.
 

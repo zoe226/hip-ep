@@ -57,11 +57,11 @@ description: >-
         </article>
         <article class="deck__slide" data-deck-slide>
           <p class="deck__kicker">Coverage</p>
-          <p class="deck__stat">20+</p>
-          <p class="deck__title">Distinct model architectures</p>
+          <p class="deck__stat">16</p>
+          <p class="deck__title">Models validated every release</p>
           <p class="deck__body">
-            Text generation, vision-language, speech recognition and vision —
-            including sparse mixture of experts.
+            Eight text and eight vision-language, from a 4B dense decoder to a
+            120B sparse mixture of experts.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
@@ -136,11 +136,10 @@ description: >-
       <span class="badge">Text generation</span>
       <span class="badge">Code generation</span>
       <span class="badge">Vision-language</span>
-      <span class="badge">Speech recognition</span>
-      <span class="badge">Image classification</span>
-      <span class="badge">Object detection</span>
-      <span class="badge">BEV perception</span>
+      <span class="badge">Reasoning</span>
       <span class="badge">Sparse mixture of experts</span>
+      <span class="badge">Gated DeltaNet</span>
+      <span class="badge">int4 weight-only</span>
     </div>
 
     <div class="model-grid">

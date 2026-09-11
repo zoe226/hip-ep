@@ -6,6 +6,12 @@
 # site/models.md, and used by site/docs/benchmarks/index.md to resolve the
 # display name for every benchmark row.
 #
+# Scope, decided for v1: generative language models only -- eight text and
+# eight vision-language, sixteen in total. The release validation suite also
+# covers Whisper and single-graph vision models; those are deliberately not
+# published on this site, so do not re-add a tier here without also adding the
+# page sections and the benchmark rows to match.
+#
 # `id` is the join key. Every id used in site/_data/benchmarks.yml must exist
 # here, or that row renders with a bare slug and no model behind it.
 #
@@ -192,86 +198,3 @@ vlm:
     precision: int4 weights, quantized MoE
     status: Validated
 
-# Speech recognition. Every entry is an OpenAI Whisper checkpoint; the id
-# encodes the size and the precision the ONNX export was built at.
-speech:
-  - id: whisper-tiny-fp16
-    name: Whisper tiny
-    hf: openai/whisper-tiny
-    precision: fp16
-  - id: whisper-base-fp16
-    name: Whisper base
-    hf: openai/whisper-base
-    precision: fp16
-  - id: whisper-small-fp16
-    name: Whisper small
-    hf: openai/whisper-small
-    precision: fp16
-  - id: whisper-medium-fp16
-    name: Whisper medium
-    hf: openai/whisper-medium
-    precision: fp16
-  - id: whisper-large-v3-fp16
-    name: Whisper large-v3
-    hf: openai/whisper-large-v3
-    precision: fp16
-  - id: whisper-large-v3-fp32
-    name: Whisper large-v3
-    hf: openai/whisper-large-v3
-    precision: fp32
-  - id: whisper-large-v3-turbo-fp16
-    name: Whisper large-v3-turbo
-    hf: openai/whisper-large-v3-turbo
-    precision: fp16
-
-# Single-graph vision models. These are not generative: one forward pass, one
-# result, measured per inference rather than per token. Several are run at more
-# than one input resolution or batch size, which is part of the identity of the
-# row -- a 2048x3072 swin and a 512x1024 swin are not the same workload.
-vision:
-  - id: mobilenet-v2-224
-    name: MobileNet v2 1.0 224
-    hf: google/mobilenet_v2_1.0_224
-    task: Image classification
-  - id: resnet50-v1.5
-    name: ResNet-50 v1.5
-    task: Image classification
-  - id: swin-tiny-224
-    name: Swin tiny, 224x224
-    hf: microsoft/swin-tiny-patch4-window7-224
-    task: Image classification
-  - id: swinv2-tiny-512x1024
-    name: Swin v2 tiny, 512x1024
-    task: Image classification
-  - id: swinv2-tiny-8x512x1024
-    name: Swin v2 tiny, batch 8, 512x1024
-    task: Image classification
-  - id: swinv2-base-2048x3072
-    name: Swin v2 base, 2048x3072
-    task: Image classification
-  - id: swinv2-base-8x2048x3072
-    name: Swin v2 base, batch 8, 2048x3072
-    task: Image classification
-  - id: detr-resnet-50
-    name: DETR ResNet-50
-    hf: facebook/detr-resnet-50
-    task: Object detection
-  - id: yolov5lu
-    name: YOLOv5l-u
-    task: Object detection
-  - id: ssd-resnet34-1200
-    name: SSD ResNet-34, 1200x1200
-    task: Object detection
-  - id: mb1-ssd
-    name: MobileNet v1 SSD
-    task: Object detection
-  - id: bevformer
-    name: BEVFormer
-    task: 3D detection from multi-camera input
-    precision: fp16
-  - id: bevformer-tiny-temporal
-    name: BEVFormer tiny, temporal
-    task: 3D detection from multi-camera input
-  - id: simplebev
-    name: SimpleBEV
-    task: Bird's-eye-view perception

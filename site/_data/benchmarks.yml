@@ -8,10 +8,11 @@
 # Every `id` here must exist in site/_data/models.yml, which is where the
 # display name and the model's identity live. This file carries numbers only.
 #
-# Policy for this page (decided for v1): one snapshot only. No version history,
-# no trend lines, no comparison against other runtimes. A stale snapshot is
-# worse than no snapshot, so `snapshot.run_date` is rendered prominently and
-# must be updated with the numbers, never separately.
+# Policy for this page (decided for v1): one snapshot only, and generative
+# language models only -- the same sixteen that site/_data/models.yml carries.
+# No version history, no trend lines, no comparison against other runtimes. A
+# stale snapshot is worse than no snapshot, so `snapshot.run_date` is rendered
+# prominently and must be updated with the numbers, never separately.
 #
 # Updating this file is the whole job of publishing a new snapshot: replace the
 # numbers, set `run_date`, set `release`. No page needs to change.
@@ -86,94 +87,3 @@ lm:
     ttft: ["0", "0", "0"]
     tps: ["0", "0", "0"]
 
-# Speech recognition. RTF is wall-clock seconds spent per second of audio,
-# lower is better.
-speech:
-  - id: whisper-tiny-fp16
-    ttft: "0"
-    tps: "0"
-    rtf: "0"
-  - id: whisper-base-fp16
-    ttft: "0"
-    tps: "0"
-    rtf: "0"
-  - id: whisper-small-fp16
-    ttft: "0"
-    tps: "0"
-    rtf: "0"
-  - id: whisper-medium-fp16
-    ttft: "0"
-    tps: "0"
-    rtf: "0"
-  - id: whisper-large-v3-turbo-fp16
-    ttft: "0"
-    tps: "0"
-    rtf: "0"
-  - id: whisper-large-v3-fp16
-    ttft: "0"
-    tps: "0"
-    rtf: "0"
-  - id: whisper-large-v3-fp32
-    ttft: "0"
-    tps: "0"
-    rtf: "0"
-
-# Single-graph vision models, measured per inference.
-# first_infer includes compiling the graph; avg_infer does not. See the page.
-vision:
-  - id: mobilenet-v2-224
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: resnet50-v1.5
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: swin-tiny-224
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: swinv2-tiny-512x1024
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: swinv2-tiny-8x512x1024
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: swinv2-base-2048x3072
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: swinv2-base-8x2048x3072
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: detr-resnet-50
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: yolov5lu
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: ssd-resnet34-1200
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: mb1-ssd
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: bevformer
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: bevformer-tiny-temporal
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"
-  - id: simplebev
-    first_infer: "0"
-    avg_infer: "0"
-    qps: "0"

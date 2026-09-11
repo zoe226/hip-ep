@@ -113,12 +113,11 @@ benchmark without those conditions attached is a benchmark you cannot check.
 {%- endif %}
 
 And this is a selection. The full matrix is
-{{ site.data.models.llm | size }} language models,
-{{ site.data.models.vlm | size }} vision-language models,
-{{ site.data.models.speech | size }} Whisper configurations and
-{{ site.data.models.vision | size }} single-graph vision models — including a
-70B dense decoder, batch-8 Swin v2 at 2048×3072, and BEV perception stacks. All
-of them are on the [model matrix]({{ '/docs/models/' | relative_url }}).
+{{ site.data.models.llm | size }} language models and
+{{ site.data.models.vlm | size }} vision-language models — from a 4B dense
+decoder to a 120B sparse mixture of experts, with Gated DeltaNet somewhere in
+the middle. All of them are on the
+[model matrix]({{ '/docs/models/' | relative_url }}).
 </div>
   </div>
 </section>
