@@ -42,9 +42,9 @@ description: >-
         Six claims, each led by the one figure that carries it. This panel used
         to step through the README Highlights, which describe how the thing is
         built; a visitor deciding whether to spend an afternoon on it is asking
-        what it covers and what it costs them. The Highlights are still on the
-        page, under "Under the hood", where a reader who has decided to care
-        will go looking for them.
+        what it covers and what it costs them. The Highlights are in the README
+        and in the design docs, where a reader who has decided to care will go
+        looking for them.
         {%- endcomment -%}
         <article class="deck__slide" data-deck-slide>
           <p class="deck__kicker">Models</p>
@@ -268,124 +268,6 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
 
 <section class="section">
   <div class="section__inner">
-    <p class="kicker">Verification</p>
-    <h2 class="headline-md">Proof, not assumption</h2>
-    <p class="lede">
-      ONNX Runtime does not fail when a provider cannot take your graph. It
-      quietly runs that part on the CPU and returns correct answers — so an
-      install where the GPU is doing nothing at all looks exactly like one that
-      works, only slower. Every path on this site ends by ruling that out, and
-      neither way of doing it needs you to know how fast the model should have
-      been.
-    </p>
-
-    <div class="split">
-      <div class="split__col">
-        <p class="split__label">Turn the fallback into a failure</p>
-
-<div class="prose" markdown="1">
-```powershell
-$env:HIPDNN_EP_STRICT = "1"
-hip-onnx-runner.exe -m your-model.onnx
-```
-</div>
-
-        <p>
-          A subgraph the compiler cannot handle now stops the run at the pass
-          that gave up, with the operator named, rather than disappearing into
-          the CPU provider. It is a validation switch, not a production one —
-          unset it before you measure anything.
-        </p>
-      </div>
-
-      <div class="split__col">
-        <p class="split__label">Or ask the provider what it chose</p>
-
-<div class="prose" markdown="1">
-```text
-morphizen-ep.cpp:344] Using backend: mlir-backend
-```
-</div>
-
-        <p>
-          Set <code>MORPHIZEN_DEBUG_MORPHIZEN_EP=1</code> and the EP logs the
-          backend it selected. That line is direct attribution — it is the
-          provider saying what it did, not a conclusion drawn from a stopwatch.
-        </p>
-      </div>
-    </div>
-
-    <div class="btn-row">
-      <a class="btn btn--primary" href="{{ '/docs/get-started/cpp-package/' | relative_url }}">Prove the GPU ran it</a>
-      <a class="btn btn--ghost" href="{{ '/docs/benchmarks/' | relative_url }}">See the numbers</a>
-    </div>
-  </div>
-</section>
-
-{%- comment -%}
-The Highlights from the repository README. They were in the hero panel and are
-now here, below the install and the verification sections: they answer "how is
-this built", which is a question a reader asks after deciding the thing is
-worth their afternoon, not before.
-{%- endcomment -%}
-<section class="section">
-  <div class="section__inner">
-    <p class="kicker">Under the hood</p>
-    <h2 class="headline-md">What the provider actually does</h2>
-    <div class="card-grid">
-      <div class="card">
-        <p class="card__title">MLIR compiler pipeline</p>
-        <p class="card__body">ONNX dialect, to a custom HIP dialect, to LLVM IR
-          — integrated with ONNX Runtime through the MorphiZen pass framework.</p>
-      </div>
-      <div class="card">
-        <p class="card__title">ROCm execution backends</p>
-        <p class="card__body">The compiled graph dispatches into hipDNN and
-          hipBLASLt for the operations they cover, and into HIP kernels written
-          for this project where they do not.</p>
-      </div>
-      <div class="card">
-        <p class="card__title">Dynamic shapes</p>
-        <p class="card__body">Shapes are refined during compilation and the rest
-          is computed in the graph, including outputs whose size is not known
-          until the run.</p>
-      </div>
-      <div class="card">
-        <p class="card__title">GPU memory planning</p>
-        <p class="card__body">Every transient is placed in one of a few
-          grow-on-demand pools rather than allocated per inference. Host-written
-          shape scalars are kept apart, in host-mapped scratch.</p>
-      </div>
-      <div class="card">
-        <p class="card__title">In-graph output allocation</p>
-        <p class="card__body">Graph outputs come from the provider's own
-          allocation callback once their runtime shapes are known, so they stay
-          owned by the runtime instead of being copied out of a pool.</p>
-      </div>
-      <div class="card">
-        <p class="card__title">Externalized constants</p>
-        <p class="card__body">Large tensors live beside the model artifact
-          rather than inside it, which keeps the artifact small enough to cache
-          and re-emit cheaply.</p>
-      </div>
-      <div class="card">
-        <p class="card__title">Two artifact formats</p>
-        <p class="card__body">By default a model becomes OS-portable LLVM
-          bitcode, JIT-loaded in-process when the session is created. A native
-          <code>.dll</code>/<code>.so</code> is an opt-in.</p>
-      </div>
-      <div class="card">
-        <p class="card__title">Extensible pipeline</p>
-        <p class="card__body">The pipeline exposes registered plugin slots, and
-          dialects and passes can be loaded from outside the tree — so a stage
-          can be replaced without forking the compiler.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="section__inner">
     <h2 class="headline-md">Start here</h2>
     <div class="card-grid">
       <a class="card card--link" href="{{ '/docs/get-started/' | relative_url }}">
@@ -396,8 +278,8 @@ worth their afternoon, not before.
       </a>
       <a class="card card--link" href="{{ '/docs/' | relative_url }}">
         <p class="card__title">Overview</p>
-        <p class="card__body">What hip-ep is, how a graph reaches the GPU, and
-          the two behaviors that make a working setup look broken.</p>
+        <p class="card__body">What hip-ep is, how a graph reaches the GPU, which
+          hardware is covered, and what it is pinned to.</p>
       </a>
       <a class="card card--link" href="{{ '/docs/get-started/deploy-script/' | relative_url }}">
         <p class="card__title">One-command deploy</p>
