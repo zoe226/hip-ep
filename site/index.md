@@ -18,10 +18,9 @@ description: >-
       <p class="kicker">ONNX Runtime Execution Provider</p>
       <h1 class="headline-lg">The fastest, most efficient LLM inference on AMD GPUs</h1>
       <p class="lede">
-        hip-ep compiles your ONNX graph into machine code for the GPU in front
-        of you and runs it there — a 4B vision-language model or a 120B mixture
-        of experts, through the same compiler. No new inference API, no model
-        server, and no per-architecture kernels to wait for.
+        hip-ep compiles your ONNX graph through an MLIR pipeline — ONNX dialect,
+        to a custom HIP dialect, to LLVM IR — and executes it on AMD GPUs with
+        hipDNN, hipBLASLt and custom HIP kernels.
       </p>
       <div class="btn-row">
         <a class="btn btn--primary" href="{{ '/docs/quickstart/' | relative_url }}">Get started</a>
@@ -39,58 +38,84 @@ description: >-
     {%- endcomment -%}
     <aside class="deck" data-deck aria-label="What hip-ep does">
       <div class="deck__viewport" data-deck-viewport>
+        {%- comment -%}
+        The eight Highlights from the repository README, in the order a reader
+        meets the stack rather than the order the README lists them: what runs
+        the work first, the compiler seventh. hip-ep is a compiler, but a
+        visitor deciding whether to try it is comparing it against inference
+        frameworks, and leading with the pass pipeline answers a question they
+        have not asked yet.
+        {%- endcomment -%}
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">One graph</p>
-          <p class="deck__title">Any prompt length, compiled once</p>
+          <p class="deck__kicker">Execution backends</p>
+          <p class="deck__title">hipDNN, hipBLASLt and custom HIP kernels</p>
           <p class="deck__body">
-            Compilation is for dynamic shape, so a single compiled graph serves
-            prefill and decode at every length. No shape buckets, no recompile
-            in the middle of a conversation.
+            The compiled graph dispatches into the tuned ROCm libraries for the
+            operations they cover, and into kernels written for this project
+            where they do not.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">A compiler</p>
-          <p class="deck__title">New architectures without new kernels</p>
+          <p class="deck__kicker">Dynamic shapes</p>
+          <p class="deck__title">Batch and sequence resolved at runtime</p>
           <p class="deck__body">
-            A sparse mixture of experts and a Gated DeltaNet block go through
-            the same MLIR passes as a plain transformer — so a model whose
-            architecture postdates the compiler can still be brought up.
+            Shapes are refined during compilation and the rest is computed in
+            the graph, including outputs whose size is not known until the run —
+            so one compiled model serves every prompt length.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Drop-in</p>
-          <p class="deck__title">An execution provider, not a runtime</p>
+          <p class="deck__kicker">Memory planning</p>
+          <p class="deck__title">Transients packed into grow-on-demand pools</p>
           <p class="deck__body">
-            The ONNX Runtime calls you already make stay as they are. hip-ep
-            registers alongside the other providers and claims the parts of the
-            graph it can compile.
+            Every intermediate buffer is placed in one of a few pool domains
+            rather than allocated per inference. Host-written shape scalars are
+            kept apart, in host-mapped scratch.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Self-contained</p>
-          <p class="deck__title">One archive on Windows</p>
+          <p class="deck__kicker">Output allocation</p>
+          <p class="deck__title">Outputs allocated inside the graph</p>
           <p class="deck__body">
-            The HIP runtime, hipBLASLt, rocBLAS and MIOpen are all in the
-            package. No ROCm installation, no change to <code>PATH</code>, no
-            administrator rights, and uninstalling is deleting the directory.
+            Graph outputs come from the execution provider's own allocation
+            callback, once their runtime shapes are known — they stay owned by
+            the runtime instead of being copied out of a pool.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Offline</p>
-          <p class="deck__title">Compiles on the machine it runs on</p>
+          <p class="deck__kicker">Externalized constants</p>
+          <p class="deck__title">Weights in a sidecar file</p>
           <p class="deck__body">
-            Compilation happens in-process, against the GPU actually present.
-            Nothing is fetched at inference time, so once the package is on disk
-            the whole path works with the network unplugged.
+            Large tensors live beside the model artifact rather than inside it,
+            which is what keeps the artifact small enough to cache and re-emit
+            cheaply.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Open source</p>
-          <p class="deck__title">Compiler, runtime and kernels in one repository</p>
+          <p class="deck__kicker">Two artifact formats</p>
+          <p class="deck__title">Portable bitcode, or a native library</p>
           <p class="deck__body">
-            Around 70 ONNX operators today, built on MLIR against ONNX Runtime
-            1.27.0. Every layer that touched your graph is readable, including
-            this site.
+            By default a model becomes OS-portable LLVM bitcode, JIT-loaded
+            in-process when the session is created. A native
+            <code>.dll</code>/<code>.so</code> is available on request.
+          </p>
+        </article>
+        <article class="deck__slide" data-deck-slide>
+          <p class="deck__kicker">Compiler pipeline</p>
+          <p class="deck__title">ONNX dialect, to HIP dialect, to LLVM IR</p>
+          <p class="deck__body">
+            An MLIR pipeline, integrated with ONNX Runtime through the MorphiZen
+            pass framework. A new architecture is new passes, not a new
+            hand-written kernel for every operator.
+          </p>
+        </article>
+        <article class="deck__slide" data-deck-slide>
+          <p class="deck__kicker">Extensible</p>
+          <p class="deck__title">Plugin slots, and out-of-tree passes</p>
+          <p class="deck__body">
+            The pipeline exposes registered slots, and dialects and passes can
+            be loaded from outside the tree — so the stages above can be
+            replaced without forking the compiler.
           </p>
         </article>
       </div>
@@ -116,8 +141,8 @@ description: >-
         <span class="stat__label">Distinct architectures — LLM, VLM, vision, speech</span>
       </div>
       <div class="stat">
-        <span class="stat__value">One graph</span>
-        <span class="stat__label">Any prompt length, prefill and decode, compiled once</span>
+        <span class="stat__value">4</span>
+        <span class="stat__label">GPU architectures — Strix Halo, Strix Point, Krackan Point, MI350X</span>
       </div>
       <div class="stat">
         <span class="stat__value">32K</span>

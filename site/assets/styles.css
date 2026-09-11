@@ -493,17 +493,23 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
 .hero .lede { max-width: 56ch; }
 .hero .btn-row { margin-top: 1.75rem; }
 
-/* Headline on the left, feature deck on the right. `minmax(0, ...)` on both
-   tracks so neither can be sized by its content and push the row wider than the
-   page. Below 960px the deck moves under the headline rather than shrinking: at
-   that width it would be narrower than the shortest slide title. */
+/* Headline on the left, feature deck on the right, at an even split: the deck
+   carries eight claims and is the only part of the hero a returning visitor
+   reads, so it gets the same weight as the headline rather than the remainder
+   of the row. `minmax(0, ...)` on both tracks so neither can be sized by its
+   content and push the row wider than the page. Below 960px the deck moves
+   under the headline rather than shrinking: at that width it would be narrower
+   than the shortest slide title. */
 .hero__grid {
   display: grid; gap: 2.5rem 3rem; align-items: center;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 .hero__main { min-width: 0; }
 @media (max-width: 960px) {
   .hero__grid { grid-template-columns: minmax(0, 1fr); }
+  /* Stacked, the deck has the whole page width, so the same slides are much
+     shorter and the desktop floor would leave a block of empty panel. */
+  .deck__viewport { min-height: 9.5rem; }
 }
 
 /* The feature deck. It is a panel with one visible slide, not a scrolling
@@ -511,14 +517,18 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
    need to be swipeable to be honest about that on touch. */
 .deck {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 1.5rem;
+  border-radius: var(--radius-xl); padding: clamp(1.5rem, 2.2vw, 2rem);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, .05);
   display: flex; flex-direction: column;
 }
 /* Reserve the height of the tallest slide before JS hides the others, so
    stepping through the deck does not reflow the page under the pointer. Set
    once here rather than measured in script: a fixed floor is cheaper than a
-   layout read on every resize, and the slides are hand-written. */
-.deck__viewport { flex: 1; min-height: 11.5rem; }
+   layout read on every resize, and the slides are hand-written. The two values
+   are the measured worst case in each layout — the deck is at its narrowest,
+   and so the slides at their tallest, just above the 960px collapse and again
+   at the smallest phone width. */
+.deck__viewport { flex: 1; min-height: 12rem; }
 .deck__slide + .deck__slide { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
 .deck.is-ready .deck__slide + .deck__slide { margin-top: 0; padding-top: 0; border-top: 0; }
 .deck__kicker {
