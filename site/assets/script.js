@@ -8,7 +8,7 @@
  * JavaScript disabled the site still renders, navigates, and reads correctly —
  * the sidebar, pager, and content are all server-rendered by Jekyll. That
  * matters because one acceptance criterion for these docs is that an agent or
- * a plain text-mode browser can follow Quick Start end to end.
+ * a plain text-mode browser can follow Get Started end to end.
  */
 (function () {
   'use strict';
@@ -127,7 +127,7 @@
       seen[heading.id] = true;
 
       // A hover anchor makes every heading directly linkable, which is what
-      // lets us cite a specific step of Quick Start in an issue or a PR.
+      // lets us cite a specific step of a walkthrough in an issue or a PR.
       var anchor = document.createElement('a');
       anchor.className = 'anchor-link';
       anchor.href = '#' + heading.id;

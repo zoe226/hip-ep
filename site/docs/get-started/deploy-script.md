@@ -6,15 +6,15 @@ description: >-
   be run unattended, or handed to an agent.
 ---
 
-The [Windows Quick Start]({{ '/docs/quickstart/windows/' | relative_url }}) walks
-through installation one command at a time, so you can see what each step does
-and check its result. This page is the same thing collapsed into one script, for
-when you do not want to read it — an unattended install, a fresh machine, or a
-coding agent that needs a working environment before it can start.
+The [C++ package]({{ '/docs/get-started/cpp-package/' | relative_url }}) page
+walks through installation one command at a time, so you can see what each step
+does and check its result. This page is the same sequence collapsed into one
+script, for when you do not want to read it — an unattended install, a fresh
+machine, or a coding agent that needs a working environment before it can start.
 
 It is deliberately narrow. **Windows on a Ryzen AI Max ("Strix Halo",
 `gfx1151`)**, using the release package. That is the configuration hip-ep is
-characterised on. For anything else, use the platform pages.
+characterised on. For anything else, use the pages either side of this one.
 
 ## Run it
 
@@ -108,8 +108,9 @@ hip-ep itself does not — only the verification does.
 
 **It does not cover Linux.** The Linux package needs a ROCm runtime it
 deliberately does not bundle, and the correct way to get one differs by
-distribution. The [Linux Quick Start]({{ '/docs/quickstart/linux/' | relative_url }})
-covers that.
+distribution. See
+[`docs/quick_start_linux.md`]({{ site.repo_url }}/blob/main/docs/quick_start_linux.md)
+in the repository.
 
 ## For agents
 
@@ -143,6 +144,6 @@ nothing has demonstrated that the GPU is being used.
 
 The script prints every command's failure output rather than swallowing it, so
 the message it shows is the one to act on. When you need to see a step in
-isolation, the [Windows Quick Start]({{ '/docs/quickstart/windows/' | relative_url }})
-has the same sequence expanded, with the expected result after each command —
-including the reference L2 value the script checks against.
+isolation, the [C++ package]({{ '/docs/get-started/cpp-package/' | relative_url }})
+page has the same sequence expanded, with the expected result after each
+command — including the reference L2 value the script checks against.

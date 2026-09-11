@@ -10,19 +10,18 @@ compiler output lands in your install prefix, the ROCm runtime stays in the
 build tree where CMake downloaded it, and ONNX Runtime is wherever you put it.
 Nothing finds anything until you say where it is.
 
-That is what this page is about. Building is
-[covered separately]({{ '/docs/quickstart/build/' | relative_url }}) and is
-summarized below only far enough to make the run steps make sense.
+That is what this page is about: the build, and then the wiring the build does
+not do for you.
 
 Take this route when you need to change the compiler, target a GPU no package
 covers, or run against an unreleased commit. Otherwise use the
-[C++ package]({{ '/docs/tutorials/cpp-package/' | relative_url }}) or the
-[Python package]({{ '/docs/tutorials/python-package/' | relative_url }}).
+[C++ package]({{ '/docs/get-started/cpp-package/' | relative_url }}) or the
+[Python package]({{ '/docs/get-started/python-package/' | relative_url }}).
 
 | Item | Requirement |
 |---|---|
 | OS | Windows, x64 |
-| Shell | **Git Bash**, launched from an *x64 Native Tools Command Prompt for VS 2022*. Unlike the package tutorials, the commands here are bash |
+| Shell | **Git Bash**, launched from an *x64 Native Tools Command Prompt for VS 2022*. Unlike the package pages, the commands here are bash |
 | GPU | Ryzen AI Max (`gfx1151`), Ryzen AI (`gfx1150` / `gfx1152`), with a current [Adrenalin driver](https://www.amd.com/en/support) |
 | Disk | ~100 GB free for a cold tree |
 | Time | Hours. LLVM/MLIR/LLD is built from source on the first configure |
@@ -36,6 +35,18 @@ and then fail somewhere inside the dependency builds.
 </div>
 
 ## Build
+
+You do not fetch dependencies by hand. `cmake/deps.cmake` resolves the whole
+stack — LLVM/MLIR/LLD, protobuf, flatbuffers, ONNX Runtime and the TheRock ROCm
+SDK — reusing them from a prefix when one is available and building or
+downloading them otherwise. The versions are pinned in
+[`cmake/deps.txt`]({{ site.repo_url }}/blob/main/cmake/deps.txt), which is the
+single source of truth: to move to a newer LLVM or ONNX Runtime, edit the line
+there and reconfigure.
+
+LLVM is the long pole, and it is why the first build is measured in hours. It
+lands in the build tree and is reused across rebuilds, so you pay it once — but
+you do pay it.
 
 ```bash
 winget install Microsoft.VisualStudio.2022.BuildTools --override "--quiet --wait --norestart --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Component.VC.CMake.Project --includeRecommended"
@@ -74,13 +85,36 @@ installs into `../local/`, and runs the LIT suite. You end up with:
     └── lib/
 ```
 
-Two flags matter more than the rest. `--hip_arch gfx1151` targets a specific
-GPU, and you need it whenever the machine you build on is not the machine you
-run on — a wrong architecture is not a build error, it configures, compiles,
-installs and runs right up until a kernel launches. `--mock` builds the
-compiler against a mock runtime with no GPU, HIP or ROCm involved, which is how
-you work on the compiler from a laptop. The
-[build page]({{ '/docs/quickstart/build/' | relative_url }}) has the rest.
+`sccache` is not optional in practice: without a compiler cache, every
+reconfigure that touches LLVM costs you the full build again.
+
+The default generator is Visual Studio 17 2022, which locates MSVC on its own.
+To use Ninja instead, pass `--cmake_generator Ninja` — that one does require the
+x64 Native Tools prompt.
+
+| Option | Effect |
+|---|---|
+| `--hip_arch <gfx-arch>` | Target a specific GPU instead of auto-detecting. Required when the build host and the run host differ |
+| `--mock` | Build the compiler against a mock runtime — no GPU, HIP or ROCm needed. The way to work on the compiler from a laptop |
+| `--config RelWithDebInfo` | Build type; default `Release` |
+| `--skip_tests` | Skip the post-install test run |
+| `--skip_wheel` | Do not build the Python wheel |
+| `--clean` | Remove the build and install trees, then exit |
+| `--install_dir`, `--cmake_prefix_path` | Override the install prefix / dependency search prefix |
+
+<div class="note note--warn" markdown="1">
+**A build must target the architecture of the GPU that will run it.** Getting
+this wrong is not a build error. It configures, compiles, installs and runs
+right up until a kernel launches. If you build on one machine and run on
+another, pass `--hip_arch` explicitly with the *target* machine's architecture.
+</div>
+
+<div class="note note--warn" markdown="1">
+**ABI: everything is built `/MT` (`MultiThreaded`, static CRT) in Release.**
+Building `Debug`, or setting `CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug`,
+produces runtime-library mismatch link errors against the prebuilt
+dependencies. Do not mix configurations.
+</div>
 
 ## Set up the environment
 
@@ -188,7 +222,7 @@ umbrella chain have to sit in `$LOCAL_DIR/bin/` alongside it.
 </div>
 
 If all you want is the LLM path and not a modified compiler, the
-[C++ package]({{ '/docs/tutorials/cpp-package/' | relative_url }}) ships
+[C++ package]({{ '/docs/get-started/cpp-package/' | relative_url }}) ships
 `model_benchmark.exe` prebuilt with every DLL it needs already beside it.
 
 ## Point a model at hip-ep
@@ -228,12 +262,12 @@ pip install \
 
 `onnxruntime_ep_amdgpu` is the upstream AMD GPU umbrella provider, built by CI's
 `amdgpu` deps job and shipped in the
-[Python package]({{ '/docs/tutorials/python-package/' | relative_url }}) — take
+[Python package]({{ '/docs/get-started/python-package/' | relative_url }}) — take
 it from there. Install it **before** the hip-ep wheel: hip-ep's native files
 land in that same package directory, and that colocation is what lets
 `hip-backend.dll` resolve `hipgpu.dll` by bare name. From there, the Python
 workflow is the one on the
-[Python package page]({{ '/docs/tutorials/python-package/' | relative_url }}),
+[Python package page]({{ '/docs/get-started/python-package/' | relative_url }}),
 including `run_onnx.py`, which sets the `AMDGPU_EP_PATH` and `LIB` that a wheel
 install needs.
 
@@ -277,6 +311,44 @@ And do not benchmark with it, `MORPHIZEN_DEBUG_MORPHIZEN_EP`,
 numbers collected under any of them are not comparable to anything.
 </div>
 
+## Tests
+
+`build.py` runs the LIT suite and the GPU-free unit tests after install unless
+you pass `--skip_tests`. To re-run without a rebuild:
+
+```bash
+BUILD_DIR="../build/$(basename "$PWD")"
+
+# Everything ctest knows about. Some E2E tests need a GPU.
+ctest --test-dir "$BUILD_DIR" -C Release --verbose
+
+# Just the MLIR pass-verification suite.
+ctest --test-dir "$BUILD_DIR" -C Release -R MorphizenMLIRLitTests --verbose
+```
+
+LIT needs `pip install lit`. The suites divide up as:
+
+| Suite | Covers |
+|---|---|
+| `test/lit/` | IR transformations and ABI lowering |
+| `test/numeric/` | Per-operation GPU-vs-CPU correctness |
+| `test/e2e/`, `test/python/` | Whole-model and runtime paths |
+
+Each directory has a `README.md` with its own setup. When you add a test, make
+sure it proves GPU execution — a test that silently falls back to the CPU EP
+compares CPU against CPU and passes for the wrong reason.
+
+Before you send a change:
+
+```bash
+pre-commit run --all-files
+```
+
+That runs `lintrunner` (clang-format for C++, Ruff for Python) and the MIT
+license-header check, which is enforced on every file.
+[`CONTRIBUTING.md`]({{ site.repo_url }}/blob/main/CONTRIBUTING.md) covers the
+PR, AI-disclosure and commit-trailer requirements.
+
 ## Troubleshooting
 
 | Symptom | Cause and fix |
@@ -292,6 +364,7 @@ numbers collected under any of them are not comparable to anything.
 
 ## Next
 
-- [Build from Source]({{ '/docs/quickstart/build/' | relative_url }}) — build options, Linux, cross-compiling for MI350X, and the test suites.
-- [Run models from Python]({{ '/docs/tutorials/python-package/' | relative_url }}) — the wheel workflow in full.
+- [Run models from Python]({{ '/docs/get-started/python-package/' | relative_url }}) — the wheel workflow in full.
 - [Model matrix]({{ '/docs/models/' | relative_url }}) — what is validated each release.
+- [Pass menu]({{ site.repo_url }}/blob/main/docs/pipeline_pass_menu.md) — pass ordering and the plugin slots, once you are changing the compiler rather than running it.
+- [`docs/quick_start_linux.md`]({{ site.repo_url }}/blob/main/docs/quick_start_linux.md) and [`docs/quick_start_mi350.md`]({{ site.repo_url }}/blob/main/docs/quick_start_mi350.md) — building and running on Linux, including `gfx950` (MI350X), which is wave64 and differs in a few places from the RDNA parts.

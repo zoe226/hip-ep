@@ -8,9 +8,9 @@
     gfx1151) running Windows, and proves the GPU executed a model.
 
 .DESCRIPTION
-    This is the scripted form of the Windows Quick Start. It is written to be
-    handed to an agent or run unattended: it takes no interactive input, it is
-    safe to re-run, it installs nothing system-wide, and it ends by verifying
+    This is the scripted form of the C++ package walkthrough. It is written to
+    be handed to an agent or run unattended: it takes no interactive input, it
+    is safe to re-run, it installs nothing system-wide, and it ends by verifying
     GPU execution rather than by assuming it.
 
     Everything lands under -Root. Deleting that directory uninstalls hip-ep
@@ -355,7 +355,7 @@ if (-not $python) {
     Write-Note 'No Python interpreter on PATH, so the test model cannot be generated.'
     Write-Note 'hip-ep itself does not need Python -- only this verification step does.'
     Write-Note 'Install Python and re-run, or supply your own model and follow'
-    Write-Note "step 6 of the Windows Quick Start by hand."
+    Write-Note "the 'Check the install' section of the C++ package page by hand."
     Complete-Run 'UNVERIFIED' 6
 }
 Write-Note "Python: $python"

@@ -79,10 +79,8 @@ defaults:
 nav_links:
   - label: Docs
     url: "/docs/"
-  - label: Quick Start
-    url: "/docs/quickstart/"
-  - label: Tutorials
-    url: "/docs/tutorials/"
+  - label: Get Started
+    url: "/docs/get-started/"
   - label: Models
     url: "/models/"
   - label: Benchmarks
@@ -111,29 +109,23 @@ docs_nav:
   - label: Overview
     url: "/docs/"
 
-  - label: Quick Start
+  # Get Started is one section on purpose. It used to be two -- a Quick Start
+  # that installed hip-ep and a Tutorials set that used it -- and the split
+  # forced every page to be written twice, once for each way the reader might
+  # have installed. Organised by install path instead, each page runs from
+  # "nothing on the machine" to "a model on the GPU" without leaving.
+  - label: Get Started
     children:
       - label: Overview
-        url: "/docs/quickstart/"
-      - label: Linux
-        url: "/docs/quickstart/linux/"
-      - label: Windows
-        url: "/docs/quickstart/windows/"
+        url: "/docs/get-started/"
       - label: One-command deploy
-        url: "/docs/quickstart/deploy-script/"
-      - label: Build from Source
-        url: "/docs/quickstart/build/"
-
-  - label: Tutorials
-    children:
-      - label: Overview
-        url: "/docs/tutorials/"
+        url: "/docs/get-started/deploy-script/"
       - label: C++ package
-        url: "/docs/tutorials/cpp-package/"
+        url: "/docs/get-started/cpp-package/"
       - label: Python package
-        url: "/docs/tutorials/python-package/"
+        url: "/docs/get-started/python-package/"
       - label: Source build
-        url: "/docs/tutorials/source-build/"
+        url: "/docs/get-started/source-build/"
 
   - label: Models
     url: "/docs/models/"

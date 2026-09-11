@@ -23,7 +23,7 @@ description: >-
         hipDNN, hipBLASLt and custom HIP kernels.
       </p>
       <div class="btn-row">
-        <a class="btn btn--primary" href="{{ '/docs/quickstart/' | relative_url }}">Get started</a>
+        <a class="btn btn--primary" href="{{ '/docs/get-started/' | relative_url }}">Get started</a>
         <a class="btn btn--ghost" href="{{ '/models/' | relative_url }}">Models</a>
         <a class="btn btn--ghost" href="{{ '/docs/benchmarks/' | relative_url }}">Benchmarks</a>
         <a class="btn btn--ghost" href="{{ site.repo_url }}/releases/tag/{{ site.hip_ep_version }}">Download {{ site.hip_ep_version }}</a>
@@ -189,11 +189,14 @@ architecture.
     <p class="table-note">
       Prebuilt packages cover all three Ryzen AI parts on Windows and Ryzen AI
       Max on Linux; the rest are a
-      <a href="{{ '/docs/quickstart/build/' | relative_url }}">source build</a>,
-      and MI350X is Linux only. Only <code>gfx1151</code> ships hipBLASLt and
-      rocBLAS tuning data, so read Strix Point and Krackan Point GEMM
-      performance as uncharacterized rather than representative. A GPU that is
-      not in this table will still build, but nothing in CI exercises it — the
+      <a href="{{ '/docs/get-started/source-build/' | relative_url }}">source build</a>.
+      MI350X is Linux only, and Linux is documented in the repository rather
+      than here — see
+      <a href="{{ site.repo_url }}/blob/main/docs/quick_start_linux.md"><code>docs/quick_start_linux.md</code></a>.
+      Only <code>gfx1151</code> ships hipBLASLt and rocBLAS tuning data, so read
+      Strix Point and Krackan Point GEMM performance as uncharacterized rather
+      than representative. A GPU that is not in this table will still build, but
+      nothing in CI exercises it — the
       <a href="{{ '/docs/' | relative_url }}">overview</a> has the detail.
     </p>
   </div>
@@ -225,14 +228,14 @@ irm {{ site.url }}{{ site.baseurl }}/assets/deploy-strix-halo.ps1 -OutFile deplo
     </p>
 
     <div class="btn-row">
-      <a class="btn btn--primary" href="{{ '/docs/quickstart/deploy-script/' | relative_url }}">What the script does</a>
-      <a class="btn btn--ghost" href="{{ '/docs/quickstart/' | relative_url }}">Linux, and the other GPUs</a>
+      <a class="btn btn--primary" href="{{ '/docs/get-started/deploy-script/' | relative_url }}">What the script does</a>
+      <a class="btn btn--ghost" href="{{ '/docs/get-started/' | relative_url }}">Every install path</a>
     </div>
 
     {%- comment -%}
     The manual route stays on the page, below a rule and at half the weight.
-    It is not a footnote -- it is the only route on Linux, and it is what
-    anyone who has to explain the install to someone else will want -- but
+    It is not a footnote -- it is what anyone who has to explain the install to
+    someone else will want, and the script covers gfx1151 only -- but
     presenting the two as equals was leaving the reader to make a choice the
     page is in a better position to make for them.
     {%- endcomment -%}
@@ -251,16 +254,18 @@ Expand-Archive gpu-test-package-windows-{{ site.hip_ep_version }}.zip -Destinati
         </div>
         <div class="split__col">
           <p>
-            Two commands, and the second one is already inference. Linux needs
-            one more thing — a ROCm runtime, which the package deliberately does
-            not bundle, because the right way to get one differs by
-            distribution. Both platforms are written out a step at a time, each
-            with the result to expect, so a step that goes wrong is caught where
-            it goes wrong rather than three commands later.
+            Two commands, and the second one is already inference — nothing to
+            install, nothing to register, because every DLL the binaries need
+            ships inside the archive. There is a Python package as well, and a
+            source build for changing the compiler. All three are written out a
+            step at a time, each with the result to expect, so a step that goes
+            wrong is caught where it goes wrong rather than three commands
+            later.
           </p>
           <div class="btn-row">
-            <a class="btn btn--ghost" href="{{ '/docs/quickstart/windows/' | relative_url }}">Windows Quick Start</a>
-            <a class="btn btn--ghost" href="{{ '/docs/quickstart/linux/' | relative_url }}">Linux Quick Start</a>
+            <a class="btn btn--ghost" href="{{ '/docs/get-started/cpp-package/' | relative_url }}">C++ package</a>
+            <a class="btn btn--ghost" href="{{ '/docs/get-started/python-package/' | relative_url }}">Python package</a>
+            <a class="btn btn--ghost" href="{{ '/docs/get-started/source-build/' | relative_url }}">Source build</a>
           </div>
         </div>
       </div>
@@ -318,7 +323,7 @@ morphizen-ep.cpp:344] Using backend: mlir-backend
     </div>
 
     <div class="btn-row">
-      <a class="btn btn--primary" href="{{ '/docs/tutorials/cpp-package/' | relative_url }}">Prove the GPU ran it</a>
+      <a class="btn btn--primary" href="{{ '/docs/get-started/cpp-package/' | relative_url }}">Prove the GPU ran it</a>
       <a class="btn btn--ghost" href="{{ '/docs/benchmarks/' | relative_url }}">See the numbers</a>
     </div>
   </div>
@@ -390,20 +395,21 @@ worth their afternoon, not before.
   <div class="section__inner">
     <h2 class="headline-md">Start here</h2>
     <div class="card-grid">
-      <a class="card card--link" href="{{ '/docs/quickstart/' | relative_url }}">
-        <p class="card__title">Quick Start</p>
-        <p class="card__body">From an empty machine to a model on the GPU, with
-          a verification step that catches the silent CPU fallback.</p>
+      <a class="card card--link" href="{{ '/docs/get-started/' | relative_url }}">
+        <p class="card__title">Get Started</p>
+        <p class="card__body">From an empty machine to a model on the GPU, one
+          page per install path, each ending in a check that catches the silent
+          CPU fallback.</p>
       </a>
       <a class="card card--link" href="{{ '/docs/' | relative_url }}">
         <p class="card__title">Overview</p>
         <p class="card__body">What hip-ep is, how a graph reaches the GPU, and
           the two behaviors that make a working setup look broken.</p>
       </a>
-      <a class="card card--link" href="{{ '/docs/tutorials/' | relative_url }}">
-        <p class="card__title">Tutorials</p>
-        <p class="card__body">Serve an LLM, prove the GPU really ran it,
-          benchmark without fooling yourself, bring your own ONNX model.</p>
+      <a class="card card--link" href="{{ '/docs/get-started/deploy-script/' | relative_url }}">
+        <p class="card__title">One-command deploy</p>
+        <p class="card__body">The Strix Halo install as a single script — the
+          same steps, unattended, ending in the same proof.</p>
       </a>
       <a class="card card--link" href="{{ '/models/' | relative_url }}">
         <p class="card__title">Models</p>
@@ -415,7 +421,7 @@ worth their afternoon, not before.
         <p class="card__body">One snapshot per release — throughput and latency,
           with the machine, the commands and the warm-up rules behind them.</p>
       </a>
-      <a class="card card--link" href="{{ '/docs/quickstart/build/' | relative_url }}">
+      <a class="card card--link" href="{{ '/docs/get-started/source-build/' | relative_url }}">
         <p class="card__title">Build from Source</p>
         <p class="card__body">For changing the compiler itself, or targeting a
           GPU the release packages do not cover.</p>

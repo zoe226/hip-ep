@@ -8,10 +8,13 @@ binaries, the ROCm runtime and the CRT import libraries the JIT linker needs are
 all inside the archive, so there is nothing to install, nothing to register and
 no Visual Studio on the machine: extract it, put `bin\` on `PATH`, and run.
 
-The [Windows Quick Start]({{ '/docs/quickstart/windows/' | relative_url }}) ends
-the moment a three-node model it generates for you executes on the GPU. That is
-a proof that the installation works and nothing more. This page is what you do
-next — running models you actually care about, with the tools in `bin\`.
+This page goes from an empty machine to models you actually care about: extract,
+verify with a model it generates for you, then run ONNX graphs, an LLM and a
+vision-language model with the tools in `bin\`. If you would rather not follow
+it by hand, steps up to the verification are also available as a single script —
+[One-command deploy]({{ '/docs/get-started/deploy-script/' | relative_url }}),
+which covers `gfx1151` only. Read this page anyway when something goes wrong;
+the script's checks are these checks.
 
 | Item | Requirement |
 |---|---|
@@ -76,6 +79,90 @@ binaries by full path instead of moving them.
 | `hipgpu.dll` | The EP itself, with the compiler linked into it |
 | `custom_kernels_gfx*.dll` | The HIP kernels, JIT-loaded by architecture |
 | `DirectML.dll` | Present so the DML EP is available as a same-machine baseline |
+
+## Check the install
+
+Before pointing this at a model that takes minutes to compile, prove the
+installation works on one that takes a second. Rather than downloading
+something, generate it locally: it depends on nothing gated and is
+byte-identical for everyone reading this page.
+
+```powershell
+Set-Location "$HOME\hip-ep-runtime"
+python -m pip install --quiet onnx
+
+@'
+import onnx
+from onnx import TensorProto, helper, numpy_helper
+import numpy as np
+
+rng = np.random.default_rng(0)
+w = numpy_helper.from_array(rng.standard_normal((512, 512), dtype=np.float32), "W")
+b = numpy_helper.from_array(rng.standard_normal((512,), dtype=np.float32), "B")
+
+graph = helper.make_graph(
+    [
+        helper.make_node("MatMul", ["X", "W"], ["mm"]),
+        helper.make_node("Add", ["mm", "B"], ["add"]),
+        helper.make_node("Relu", ["add"], ["Y"]),
+    ],
+    "smoke",
+    [helper.make_tensor_value_info("X", TensorProto.FLOAT, [1, 512])],
+    [helper.make_tensor_value_info("Y", TensorProto.FLOAT, [1, 512])],
+    [w, b],
+)
+model = helper.make_model(graph, opset_imports=[helper.make_opsetid("", 17)])
+model.ir_version = 10
+onnx.checker.check_model(model)
+onnx.save(model, "smoke.onnx")
+print("wrote smoke.onnx")
+'@ | Set-Content -Path make_smoke.py
+
+python make_smoke.py
+& "$env:HIPEP_ROOT\bin\hip-onnx-runner.exe" -m smoke.onnx
+```
+
+`ir_version` is pinned because ONNX Runtime rejects models newer than the IR
+version it was built against, and the `onnx` package on PyPI moves faster than
+the pinned runtime does. **Any** Python will do for this — the CPython 3.14
+constraint applies to the wheels in `wheels\`, not to generating a model.
+
+Expected: the run completes in a few seconds, most of it spent compiling during
+session creation. On a Ryzen AI Max it took 2.40 s, then 2.12 s, then 2.11 s —
+re-running is not faster, because there is no on-disk artifact cache in
+`{{ site.hip_ep_version }}`.
+
+Now check that the GPU, and not the CPU EP, produced those numbers. Dump the
+outputs both ways and compare them:
+
+```powershell
+& "$env:HIPEP_ROOT\bin\hip-onnx-runner.exe" -m smoke.onnx -d 2       # EP  -> smoke_o_dump\
+& "$env:HIPEP_ROOT\bin\hip-onnx-runner.exe" -m smoke.onnx -d 2 -n    # CPU -> smoke_cpu_o_dump\
+& "$env:HIPEP_ROOT\bin\hip-onnx-runner.exe" -L smoke_o_dump,smoke_cpu_o_dump
+```
+
+Dump directories are named from the model file's stem, so the two do not
+overwrite each other; with a model of your own they are `<stem>_o_dump` and
+`<stem>_cpu_o_dump`.
+
+Expected: a small L2 norm, on the order of `0.02` for this model on a Ryzen AI
+Max. **Read the magnitude, not the digits.** Bit equality is neither expected
+nor a goal — the GPU path uses different kernels and a different accumulation
+order — and three runs of this check on one machine, same driver, same package,
+byte-identical `smoke.onnx`, produced `0.0239186`, `0.0234262` and `0.0217464`,
+because the GEMM library does not have to pick the same algorithm twice.
+Anything in the same order of magnitude is a pass. A result in the ones, or a
+non-finite one, is a real failure worth stopping on.
+
+<div class="note" markdown="1">
+**Do not read a performance result out of `smoke.onnx`.** Three nodes over a
+512×512 matrix is deliberately small enough to generate inline, and at that size
+launch and dispatch overhead is nearly all of the measurement — including
+against the DML baseline that `DirectML.dll` makes available. It is a check that
+the toolchain works end to end, not a workload. Take performance from
+[the benchmarks]({{ '/docs/benchmarks/' | relative_url }}) or from a model of
+your own at a realistic size.
+</div>
 
 ## Run a single ONNX graph
 
@@ -220,7 +307,7 @@ EOS, bounded only by `search.max_length` in the config, so capping the token
 count means editing that value.
 
 If you would rather drive vision-language models from a script you can modify,
-that is the [Python package]({{ '/docs/tutorials/python-package/' | relative_url }})
+that is the [Python package]({{ '/docs/get-started/python-package/' | relative_url }})
 route.
 
 ## Models
@@ -351,6 +438,6 @@ presence, not for value, so `HIPDNN_EP_STRICT=0` enables strict mode exactly as
 
 ## Next
 
-- [Run models from Python]({{ '/docs/tutorials/python-package/' | relative_url }}) — the same models from a script you can edit.
-- [Run models from a source build]({{ '/docs/tutorials/source-build/' | relative_url }}) — when you need to change the compiler.
+- [Run models from Python]({{ '/docs/get-started/python-package/' | relative_url }}) — the same models from a script you can edit.
+- [Run models from a source build]({{ '/docs/get-started/source-build/' | relative_url }}) — when you need to change the compiler.
 - [Benchmarks]({{ '/docs/benchmarks/' | relative_url }}) — the published numbers, and the conditions behind them.

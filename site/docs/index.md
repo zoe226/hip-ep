@@ -96,8 +96,10 @@ whole ROCm installation you provide yourself.
   Runtime and OGA runtimes, and a `clang`/`lld` toolchain for the per-model link
   step, but no ROCm. You supply the HIP runtime and point `THEROCK_DIST` at it.
 
-The [Quick Start]({{ '/docs/quickstart/' | relative_url }}) walks through each
-platform in order.
+[Get Started]({{ '/docs/get-started/' | relative_url }}) walks through the
+Windows side one command at a time; Linux is documented in
+[`docs/quick_start_linux.md`]({{ site.repo_url }}/blob/main/docs/quick_start_linux.md)
+in the repository.
 
 ## Version pinning
 
@@ -123,17 +125,18 @@ disagree.
 ## Where to go next
 
 <div class="card-grid" markdown="0">
-  <a class="card card--link" href="{{ '/docs/quickstart/' | relative_url }}">
+  <a class="card card--link" href="{{ '/docs/get-started/cpp-package/' | relative_url }}">
     <p class="card__title">Just want to run a model</p>
-    <p class="card__body">Quick Start. Download a release package, pick your
-      platform, get one inference on the GPU. No compiler required.</p>
+    <p class="card__body">The C++ package. Extract a release archive, put
+      <code>bin</code> on <code>PATH</code>, get one inference on the GPU. No
+      compiler required.</p>
   </a>
-  <a class="card card--link" href="{{ '/docs/tutorials/' | relative_url }}">
-    <p class="card__title">Already running, want more</p>
-    <p class="card__body">Tutorials. Serve an LLM, prove the GPU really ran it,
-      benchmark honestly, and bring a model of your own.</p>
+  <a class="card card--link" href="{{ '/docs/get-started/python-package/' | relative_url }}">
+    <p class="card__title">Want to drive it yourself</p>
+    <p class="card__body">The Python package. Serve an LLM, prove the GPU really
+      ran it, benchmark honestly, and bring a model of your own.</p>
   </a>
-  <a class="card card--link" href="{{ '/docs/quickstart/build/' | relative_url }}">
+  <a class="card card--link" href="{{ '/docs/get-started/source-build/' | relative_url }}">
     <p class="card__title">Want to change the compiler</p>
     <p class="card__body">Build from source. Budget several hours for the first
       build — LLVM is compiled along with it.</p>

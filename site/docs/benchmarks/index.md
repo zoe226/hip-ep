@@ -180,9 +180,8 @@ fast relative to each other, and how each degrades with prompt length.
 The tools are in the release package —
 `onnxruntime_perf_test` for single graphs and `model_benchmark` for generative
 models on Windows. The
-[Windows Quick Start]({{ '/docs/quickstart/windows/' | relative_url }}) and
-[Linux Quick Start]({{ '/docs/quickstart/linux/' | relative_url }}) both end
-with a benchmark step.
+[C++ package]({{ '/docs/get-started/cpp-package/' | relative_url }}) page covers
+both, along with the flags that make a measurement comparable to these.
 
 <div class="note note--warn" markdown="1">
 Before trusting a number you measured yourself, confirm the graph actually ran

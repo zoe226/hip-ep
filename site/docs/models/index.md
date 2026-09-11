@@ -124,7 +124,7 @@ the memory footprint that implies.
 
 Nothing about these models needs special handling. They load through the same
 path as any other ONNX model — see the
-[Quick Start]({{ '/docs/quickstart/' | relative_url }}) — with one caveat that
+[Get Started]({{ '/docs/get-started/' | relative_url }}) — with one caveat that
 catches people:
 
 <div class="note note--warn" markdown="1">

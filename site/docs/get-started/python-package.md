@@ -3,7 +3,7 @@ title: Run models from Python
 description: Install the hip-ep wheels into a Python 3.14 environment and drive ONNX models, LLMs and vision-language models from scripts you can edit.
 ---
 
-The Python package is the same EP as the [C++ package]({{ '/docs/tutorials/cpp-package/' | relative_url }}),
+The Python package is the same EP as the [C++ package]({{ '/docs/get-started/cpp-package/' | relative_url }}),
 delivered as wheels. Nothing has to be placed by hand and no Visual Studio is
 needed: the EP's native files — the plugin itself, the custom kernels, the ROCm
 runtime and the CRT import libraries the JIT linker uses — install into the
@@ -303,6 +303,6 @@ and is the default everywhere else too.
 
 ## Next
 
-- [Run models with the C++ package]({{ '/docs/tutorials/cpp-package/' | relative_url }}) — the same models, no Python.
-- [Run models from a source build]({{ '/docs/tutorials/source-build/' | relative_url }}) — when you need to change the compiler.
+- [Run models with the C++ package]({{ '/docs/get-started/cpp-package/' | relative_url }}) — the same models, no Python.
+- [Run models from a source build]({{ '/docs/get-started/source-build/' | relative_url }}) — when you need to change the compiler.
 - [Model matrix]({{ '/docs/models/' | relative_url }}) — what is validated each release.

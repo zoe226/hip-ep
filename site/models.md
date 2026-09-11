@@ -33,7 +33,7 @@ description: >-
     <div class="btn-row">
       <a class="btn btn--primary" href="{{ '/docs/models/' | relative_url }}">Full model matrix</a>
       <a class="btn btn--ghost" href="{{ '/docs/benchmarks/' | relative_url }}">All benchmark numbers</a>
-      <a class="btn btn--ghost" href="{{ '/docs/quickstart/' | relative_url }}">Run one yourself</a>
+      <a class="btn btn--ghost" href="{{ '/docs/get-started/' | relative_url }}">Run one yourself</a>
     </div>
   </div>
 </section>
@@ -133,18 +133,18 @@ of them are on the [model matrix]({{ '/docs/models/' | relative_url }}).
       advance how it will do.
     </p>
     <div class="card-grid">
-      <a class="card card--link" href="{{ '/docs/tutorials/cpp-package/' | relative_url }}">
+      <a class="card card--link" href="{{ '/docs/get-started/cpp-package/' | relative_url }}">
         <p class="card__title">With the C++ package</p>
         <p class="card__body">Point the bundled binaries at any ONNX graph or
           OGA model directory. Nothing here is special-cased for the models
           above.</p>
       </a>
-      <a class="card card--link" href="{{ '/docs/tutorials/python-package/' | relative_url }}">
+      <a class="card card--link" href="{{ '/docs/get-started/python-package/' | relative_url }}">
         <p class="card__title">From Python</p>
         <p class="card__body">The same models through your own code, when you
           want the generation loop rather than a benchmark's.</p>
       </a>
-      <a class="card card--link" href="{{ '/docs/tutorials/source-build/' | relative_url }}">
+      <a class="card card--link" href="{{ '/docs/get-started/source-build/' | relative_url }}">
         <p class="card__title">From a source build</p>
         <p class="card__body">Compare the EP's outputs against the CPU's, and
           find out which parts of a graph it actually claimed.</p>
