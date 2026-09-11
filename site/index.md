@@ -158,6 +158,47 @@ description: >-
   </div>
 </section>
 
+{%- comment -%}
+Directly under the models, and with the section's own top padding removed, so
+the two read as one thought: here is what runs, and here is what it runs on.
+The exceptions used to be three paragraphs; they are the same three facts, but
+a reader checking whether their own GPU is on the list is scanning the table,
+not reading around it.
+{%- endcomment -%}
+<section class="section section--attached">
+  <div class="section__inner">
+    <h2 class="headline-md">Supported hardware</h2>
+
+{%- comment -%}
+Full-width column so this heading starts on the same line as the models above
+it, but the table itself is capped: four rows of two short cells stretched to
+the full page width is a lot of ruled whitespace between a GPU and its
+architecture.
+{%- endcomment -%}
+<div class="prose prose--table-narrow" markdown="1">
+
+| GPU | Architecture |
+|---|---|
+| Ryzen AI Max ("Strix Halo") | `gfx1151` |
+| Ryzen AI ("Strix Point") | `gfx1150` |
+| Ryzen AI ("Krackan Point") | `gfx1152` |
+| Instinct MI350X | `gfx950` |
+
+</div>
+
+    <p class="table-note">
+      Prebuilt packages cover all three Ryzen AI parts on Windows and Ryzen AI
+      Max on Linux; the rest are a
+      <a href="{{ '/docs/quickstart/build/' | relative_url }}">source build</a>,
+      and MI350X is Linux only. Only <code>gfx1151</code> ships hipBLASLt and
+      rocBLAS tuning data, so read Strix Point and Krackan Point GEMM
+      performance as uncharacterized rather than representative. A GPU that is
+      not in this table will still build, but nothing in CI exercises it — the
+      <a href="{{ '/docs/' | relative_url }}">overview</a> has the detail.
+    </p>
+  </div>
+</section>
+
 <section class="section section--alt" id="install">
   <div class="section__inner">
     <p class="kicker">Install</p>
@@ -342,43 +383,6 @@ worth their afternoon, not before.
           can be replaced without forking the compiler.</p>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="section section--alt">
-  <div class="section__inner section__inner--narrow">
-    <h2 class="headline-md">Supported hardware</h2>
-
-<div class="prose" markdown="1">
-
-| GPU | Architecture |
-|---|---|
-| Ryzen AI Max ("Strix Halo") | `gfx1151` |
-| Ryzen AI ("Strix Point") | `gfx1150` |
-| Ryzen AI ("Krackan Point") | `gfx1152` |
-| Instinct MI350X | `gfx950` |
-
-</div>
-
-    <p>
-      All three Ryzen AI parts have a prebuilt Windows package. On Linux the
-      package covers Ryzen AI Max, and the rest are a source build; MI350X is
-      Linux only. The <a href="{{ '/docs/quickstart/' | relative_url }}">Quick
-      Start</a> starts from whichever of the two applies to you.
-    </p>
-    <p>
-      A GPU that is not in this table is not a supported configuration. You can
-      still build for it — the build accepts any architecture the ROCm toolchain
-      handles — but nothing in CI exercises it.
-    </p>
-    <p>
-      One caveat inside the table: the Windows package carries GPU kernels for
-      all three RDNA 3.5 parts, but hipBLASLt and rocBLAS tuning data for
-      <code>gfx1151</code> only. Strix Point and Krackan Point run, and their
-      GEMM-heavy performance should be read as uncharacterized rather than
-      representative. The <a href="{{ '/docs/' | relative_url }}">overview</a>
-      goes through this in full.
-    </p>
   </div>
 </section>
 

@@ -201,6 +201,11 @@ img { max-width: 100%; height: auto; }
 .section__inner > :last-child { margin-bottom: 0; }
 
 .section--docs { padding-top: 1.75rem; }
+/* Drops the top padding so a section reads as the second half of the one above
+   it rather than as a new claim. The gap that remains is the previous
+   section's own bottom padding, which is still a section's worth of air --
+   what goes away is the doubling. */
+.section--attached { padding-top: 0; }
 .section__inner { width: min(100% - 2 * var(--page-pad), var(--maxw)); margin-inline: auto; }
 .section__inner--narrow { width: min(100% - 2 * var(--page-pad), var(--maxw-narrow)); }
 
@@ -466,6 +471,10 @@ div.highlight:hover .code-copy, .code-copy:focus-visible { opacity: 1; }
   margin: 0 0 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-md);
 }
 .table-scroll table { margin-bottom: 0; }
+/* Caps a table that has fewer columns than the column it sits in. Applied to
+   the wrapper rather than the table so it survives initTableScroll(), which
+   inserts a .table-scroll div between the two. */
+.prose--table-narrow, .prose--table-narrow .table-scroll { max-width: 40rem; }
 .docs-content th, .prose th {
   text-align: left; font-weight: 600; white-space: nowrap;
   background: var(--bg-elevated); color: var(--text);
@@ -729,6 +738,15 @@ a.card--link:hover .card__title::after { color: var(--accent); }
   max-width: 68ch; margin: .8rem 0 0;
   font-size: var(--step--1); color: var(--text-muted);
 }
+/* A caption under a table, not another paragraph of body copy. The table above
+   it carries the facts and this line carries only the exceptions to them, so it
+   is set at the same reduced weight as the install note -- a reader scanning
+   the rows for their own GPU should be able to skip it and lose nothing. */
+.table-note {
+  max-width: 72ch; margin: 1.1rem 0 0;
+  font-size: var(--step--1); color: var(--text-muted);
+}
+
 /* The hand-run route, kept but visibly secondary. The rule is doing the work
    that a heading would otherwise have to do, which is why there is no heading. */
 .install__manual {
