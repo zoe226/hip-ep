@@ -163,26 +163,31 @@ error that does not name the real problem:
   says `search.max_length: 32768` does not — passing it there sizes the KV cache
   for 32768 tokens in order to generate 128.
 
-A successful run reports four blocks:
+Example output — `Llama-3.1-8B-awq-g128-int4-asym-fp16-onnx-dml` on `gfx1151`.
+Numbers vary by machine, driver and thermal state:
 
 ```text
+[ConvertOnnxToHipPass] streaming: 743 file-ref + 2 splat -> per-entry descriptors
+Running warmup iterations (1)...
+Running iterations (5)...
 Batch size: 1, prompt tokens: 128, tokens to generate: 128
 Prompt processing (time to first token):
-	avg (us):       <n>         avg (tokens/s): <n>
-	p50 (us):       <n>         stddev (us):    <n>         n: 5 * 128 token(s)
+        avg (tokens/s): 513.82
 Token generation:
-	avg (us):       <n>         avg (tokens/s): <n>
-	p50 (us):       <n>         stddev (us):    <n>         n: 635 * 1 token(s)
-Token sampling:
-	avg (us):       <n>         avg (tokens/s): <n>
+        avg (tokens/s): 33.85
 E2E generation (entire generation loop):
-	avg (ms):       <n>         p50 (ms): <n>       stddev (ms): <n>        n: 5
-Peak working set size (bytes): <n>
+        avg (ms):       4000.83
+Peak working set size (bytes): 1304625152
 ```
 
-Two of those are the ones to read: **time to first token** under prompt
-processing, and **token generation** in tokens per second. Everything else is
-either a sum of the two or an artifact of how the harness loops.
+Two of those are the ones to read: **prompt processing**, which is where
+time-to-first-token comes from, and **token generation** in tokens per second.
+E2E is the sum of the two over the whole loop.
+
+The `[ConvertOnnxToHipPass]` line is the compiler reporting what it did with the
+model's constants, and together with the `hipdnn_ep_get_pool_base: growing
+pool[0] ...` lines it is evidence the run reached hip-ep rather than falling
+back to the CPU EP.
 
 ## Run a vision-language model
 
@@ -218,7 +223,35 @@ If you would rather drive vision-language models from a script you can modify,
 that is the [Python package]({{ '/docs/tutorials/python-package/' | relative_url }})
 route.
 
-## Point a model at hip-ep
+## Models
+
+Pre-quantized ONNX models that run on hip-ep. Download a model directory, then
+point `-i` at it.
+
+| Model | Type | Download |
+|---|---|---|
+| `DeepSeek-R1-Distill-Llama-70B-dml-int4-awq-block-128` | Dense 70B | AMD internal |
+| `gpt-oss-120b-w-uint4-pergroup-asym-awq-onnx-fp16` | MoE 120B | [Hugging&nbsp;Face](https://huggingface.co/amd/gpt-oss-120b-w-uint4-pergroup-asym-awq-onnx-fp16) |
+| `Llama-3.1-8B-awq-g128-int4-asym-fp16-onnx-dml` | Dense 8B | [Hugging&nbsp;Face](https://huggingface.co/amd/Llama-3.1-8B-awq-g128-int4-asym-fp16-onnx-dml) |
+| `Mistral-7B-Instruct-v0.3-dml-int4-awq-block-128` | Dense 7B | AMD internal |
+| `phi4-14B-int4-rtn-block-32_directml` | Dense 14B | AMD internal |
+| `Qwen2.5-14B-instruct-rtn-128gs-fp16-onnx-gpu` | Dense 14B | [Hugging&nbsp;Face](https://huggingface.co/amd/Qwen2.5-14B-instruct-rtn-128gs-fp16-onnx-gpu) |
+| `Qwen2.5-Coder-14B-instruct-rtn-128gs-fp16-onnx-gpu` | Dense 14B | [Hugging&nbsp;Face](https://huggingface.co/amd/Qwen2.5-Coder-14B-instruct-rtn-128gs-fp16-onnx-gpu) |
+| `gpt-oss-20b-webgpu-int4-rtn-block-32` | MoE 20B | [Hugging&nbsp;Face](https://huggingface.co/onnxruntime/gpt-oss-20b-onnx) |
+| `Qwen3.5-35B-A3B-fp16-ve-fp16-int4-text-gs32-dml` | MoE 35B | [Hugging&nbsp;Face](https://huggingface.co/amd/Qwen3.5-35B-A3B-fp16-ve-fp16-int4-text-gs32-dml) |
+| `Qwen3.5-9B-fp16-ve-fp16-int4-text-gs32-dml` | Dense 9B | [Hugging&nbsp;Face](https://huggingface.co/amd/Qwen3.5-9B-fp16-ve-fp16-int4-text-gs32-dml) |
+| `gemma3-4b-it-rtn-int4-128gs-fp16-onnx-gpu` | Dense 4B, vision-language | [Hugging&nbsp;Face](https://huggingface.co/amd/gemma3-4b-it-rtn-int4-128gs-fp16-onnx-gpu) |
+| `Qwen3.6-35B-A3B-fp16-ve-fp16-int4-text-gs32-dml` | MoE 35B | [Hugging&nbsp;Face](https://huggingface.co/amd/Qwen3.6-35B-A3B-fp16-ve-fp16-int4-text-gs32-dml) |
+
+<p class="table-note">
+These are the quantized ONNX artifacts, not the base models — the
+<a href="{{ '/docs/models/' | relative_url }}">model matrix</a> covers what each
+one is and how it was validated. Most of the <code>amd/</code> repositories are
+gated: you will need to be signed in to Hugging Face and have requested access
+before the download works. The three marked AMD internal have no public mirror.
+</p>
+
+### Selecting the EP in `genai_config.json`
 
 For anything driven through OGA — `model_benchmark`, `model_mm`, or your own
 code — the provider is selected by the model, not by the command line. Open

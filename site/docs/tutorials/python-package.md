@@ -137,25 +137,36 @@ inherited. That is the whole reason to go through it rather than calling
 | `-m <n>` | Max length. `-1` means "use `search.max_length` from the config" |
 | `-v` | Verbose |
 
-Output:
+Example output — `Llama-3.1-8B-awq-g128-int4-asym-fp16-onnx-dml` on `gfx1151`.
+Numbers vary by machine, driver and thermal state:
 
 ```text
 Args: batch_size = 1, prompt_length = 128, tokens = 128, max_length = 256
-hipdnn_ep_get_pool_base: growing pool[0] <n> -> <n> bytes
-Average Prompt Processing Latency (per token): <n> ms
-Average Prompt Processing Throughput (per token): <n> tps
-Average Token Generation Latency (per token): <n> ms
-Average Token Generation Throughput (per token): <n> tps
-Average Wall Clock Time: <n> s
-Average Wall Clock Throughput: <n> tps
+hipdnn_ep_get_pool_base: growing pool[0] 256 -> 1383424 bytes
+hipdnn_ep_get_pool_base: growing pool[0] 1383424 -> 20429824 bytes
+100%|##########| 5/5 [...]     (warmup)
+100%|##########| 10/10 [...]   (benchmark)
+Average Tokenization Latency (per token): 0.00196 ms
+Average Tokenization Throughput (per token): 509988.89 tps
+Average Prompt Processing Latency (per token): 2.2055 ms
+Average Prompt Processing Throughput (per token): 453.40 tps
+Average Token Generation Latency (per token): 23.677 ms
+Average Token Generation Throughput (per token): 42.235 tps
+Average Sampling Latency (per token): 0.1161 ms
+Average Sampling Throughput (per token): 8613.26 tps
+Average Wall Clock Time: 3.1839 s
+Average Wall Clock Throughput: 81.975 tps
 Results saved in genai_e2e!
 ```
 
 The two numbers worth reading are prompt-processing throughput (prefill, which
 is what time-to-first-token comes from) and token-generation throughput
-(decode). The `hipdnn_ep_get_pool_base` lines are not noise — they are the GPU
-memory pool growing, which is evidence the run reached the GPU at all. They
-appear once per new input shape and then stop.
+(decode). Tokenization and sampling are host-side work and are reported only so
+you can confirm they are not where the time went.
+
+The `hipdnn_ep_get_pool_base` lines are not noise — they are the GPU memory pool
+growing, which is evidence the run reached the GPU at all. They appear once per
+new input shape and then stop.
 
 ## Run a vision-language model
 
@@ -177,7 +188,35 @@ are in `benchmark_e2e.py` — the two scripts come from different upstreams.
 The model's `genai_config.json` has to select hip-ep, exactly as for a text
 model. See below.
 
-## Point a model at hip-ep
+## Models
+
+Pre-quantized ONNX models that run on hip-ep. Download a model directory, then
+point `-i` at it.
+
+| Model | Type | Download |
+|---|---|---|
+| `DeepSeek-R1-Distill-Llama-70B-dml-int4-awq-block-128` | Dense 70B | AMD internal |
+| `gpt-oss-120b-w-uint4-pergroup-asym-awq-onnx-fp16` | MoE 120B | [Hugging&nbsp;Face](https://huggingface.co/amd/gpt-oss-120b-w-uint4-pergroup-asym-awq-onnx-fp16) |
+| `Llama-3.1-8B-awq-g128-int4-asym-fp16-onnx-dml` | Dense 8B | [Hugging&nbsp;Face](https://huggingface.co/amd/Llama-3.1-8B-awq-g128-int4-asym-fp16-onnx-dml) |
+| `Mistral-7B-Instruct-v0.3-dml-int4-awq-block-128` | Dense 7B | AMD internal |
+| `phi4-14B-int4-rtn-block-32_directml` | Dense 14B | AMD internal |
+| `Qwen2.5-14B-instruct-rtn-128gs-fp16-onnx-gpu` | Dense 14B | [Hugging&nbsp;Face](https://huggingface.co/amd/Qwen2.5-14B-instruct-rtn-128gs-fp16-onnx-gpu) |
+| `Qwen2.5-Coder-14B-instruct-rtn-128gs-fp16-onnx-gpu` | Dense 14B | [Hugging&nbsp;Face](https://huggingface.co/amd/Qwen2.5-Coder-14B-instruct-rtn-128gs-fp16-onnx-gpu) |
+| `gpt-oss-20b-webgpu-int4-rtn-block-32` | MoE 20B | [Hugging&nbsp;Face](https://huggingface.co/onnxruntime/gpt-oss-20b-onnx) |
+| `Qwen3.5-35B-A3B-fp16-ve-fp16-int4-text-gs32-dml` | MoE 35B | [Hugging&nbsp;Face](https://huggingface.co/amd/Qwen3.5-35B-A3B-fp16-ve-fp16-int4-text-gs32-dml) |
+| `Qwen3.5-9B-fp16-ve-fp16-int4-text-gs32-dml` | Dense 9B | [Hugging&nbsp;Face](https://huggingface.co/amd/Qwen3.5-9B-fp16-ve-fp16-int4-text-gs32-dml) |
+| `gemma3-4b-it-rtn-int4-128gs-fp16-onnx-gpu` | Dense 4B, vision-language | [Hugging&nbsp;Face](https://huggingface.co/amd/gemma3-4b-it-rtn-int4-128gs-fp16-onnx-gpu) |
+| `Qwen3.6-35B-A3B-fp16-ve-fp16-int4-text-gs32-dml` | MoE 35B | [Hugging&nbsp;Face](https://huggingface.co/amd/Qwen3.6-35B-A3B-fp16-ve-fp16-int4-text-gs32-dml) |
+
+<p class="table-note">
+These are the quantized ONNX artifacts, not the base models — the
+<a href="{{ '/docs/models/' | relative_url }}">model matrix</a> covers what each
+one is and how it was validated. Most of the <code>amd/</code> repositories are
+gated: you will need to be signed in to Hugging Face and have requested access
+before the download works. The three marked AMD internal have no public mirror.
+</p>
+
+### Selecting the EP in `genai_config.json`
 
 Anything driven through OGA picks its provider from the model, not from the
 command line. In `genai_config.json`, set `model` → `decoder` →
