@@ -39,83 +39,66 @@ description: >-
     <aside class="deck" data-deck aria-label="What hip-ep does">
       <div class="deck__viewport" data-deck-viewport>
         {%- comment -%}
-        The eight Highlights from the repository README, in the order a reader
-        meets the stack rather than the order the README lists them: what runs
-        the work first, the compiler seventh. hip-ep is a compiler, but a
-        visitor deciding whether to try it is comparing it against inference
-        frameworks, and leading with the pass pipeline answers a question they
-        have not asked yet.
+        Six claims, each led by the one figure that carries it. This panel used
+        to step through the README Highlights, which describe how the thing is
+        built; a visitor deciding whether to spend an afternoon on it is asking
+        what it covers and what it costs them. The Highlights are still on the
+        page, under "Under the hood", where a reader who has decided to care
+        will go looking for them.
         {%- endcomment -%}
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Execution backends</p>
-          <p class="deck__title">hipDNN, hipBLASLt and custom HIP kernels</p>
+          <p class="deck__kicker">Models</p>
+          <p class="deck__stat">50+</p>
+          <p class="deck__title">LLMs running on Strix Halo today</p>
           <p class="deck__body">
-            The compiled graph dispatches into the tuned ROCm libraries for the
-            operations they cover, and into kernels written for this project
-            where they do not.
+            Brought up and measured on the hardware, not read off a
+            compatibility list.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Dynamic shapes</p>
-          <p class="deck__title">Batch and sequence resolved at runtime</p>
+          <p class="deck__kicker">Coverage</p>
+          <p class="deck__stat">20+</p>
+          <p class="deck__title">Distinct model architectures</p>
           <p class="deck__body">
-            Shapes are refined during compilation and the rest is computed in
-            the graph, including outputs whose size is not known until the run —
-            so one compiled model serves every prompt length.
+            Text generation, vision-language, speech recognition and vision —
+            including sparse mixture of experts.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Memory planning</p>
-          <p class="deck__title">Transients packed into grow-on-demand pools</p>
+          <p class="deck__kicker">Context</p>
+          <p class="deck__stat">32K</p>
+          <p class="deck__title">Maximum supported context, in tokens</p>
           <p class="deck__body">
-            Every intermediate buffer is placed in one of a few pool domains
-            rather than allocated per inference. Host-written shape scalars are
-            kept apart, in host-mapped scratch.
+            One compiled model serves every prompt length, prefill and decode.
+            No shape buckets, and no recompile mid-conversation.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Output allocation</p>
-          <p class="deck__title">Outputs allocated inside the graph</p>
+          <p class="deck__kicker">Hardware</p>
+          <p class="deck__stat">4</p>
+          <p class="deck__title">AMD GPU architectures</p>
           <p class="deck__body">
-            Graph outputs come from the execution provider's own allocation
-            callback, once their runtime shapes are known — they stay owned by
-            the runtime instead of being copied out of a pool.
+            Ryzen AI Max (Strix Halo), Ryzen AI (Strix Point and Krackan Point),
+            and Instinct MI350X.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Externalized constants</p>
-          <p class="deck__title">Weights in a sidecar file</p>
+          <p class="deck__kicker">Integration</p>
+          <p class="deck__stat deck__stat--word">Drop-in</p>
+          <p class="deck__title">An execution provider, not a new runtime</p>
           <p class="deck__body">
-            Large tensors live beside the model artifact rather than inside it,
-            which is what keeps the artifact small enough to cache and re-emit
-            cheaply.
+            The ONNX Runtime calls you already make stay as they are. hip-ep
+            registers alongside the other providers and claims what it can
+            compile.
           </p>
         </article>
         <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Two artifact formats</p>
-          <p class="deck__title">Portable bitcode, or a native library</p>
+          <p class="deck__kicker">License</p>
+          <p class="deck__stat deck__stat--word">Open source</p>
+          <p class="deck__title">Compiler, runtime and kernels in one repository</p>
           <p class="deck__body">
-            By default a model becomes OS-portable LLVM bitcode, JIT-loaded
-            in-process when the session is created. A native
-            <code>.dll</code>/<code>.so</code> is available on request.
-          </p>
-        </article>
-        <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Compiler pipeline</p>
-          <p class="deck__title">ONNX dialect, to HIP dialect, to LLVM IR</p>
-          <p class="deck__body">
-            An MLIR pipeline, integrated with ONNX Runtime through the MorphiZen
-            pass framework. A new architecture is new passes, not a new
-            hand-written kernel for every operator.
-          </p>
-        </article>
-        <article class="deck__slide" data-deck-slide>
-          <p class="deck__kicker">Extensible</p>
-          <p class="deck__title">Plugin slots, and out-of-tree passes</p>
-          <p class="deck__body">
-            The pipeline exposes registered slots, and dialects and passes can
-            be loaded from outside the tree — so the stages above can be
-            replaced without forking the compiler.
+            Every layer that touched your graph is readable, including this
+            site.
           </p>
         </article>
       </div>
@@ -129,37 +112,6 @@ description: >-
   </div>
 </section>
 
-<section class="section section--alt">
-  <div class="section__inner">
-    <div class="stat-row">
-      <div class="stat">
-        <span class="stat__value">50+</span>
-        <span class="stat__label">LLMs brought up on Strix Halo</span>
-      </div>
-      <div class="stat">
-        <span class="stat__value">20+</span>
-        <span class="stat__label">Distinct architectures — LLM, VLM, vision, speech</span>
-      </div>
-      <div class="stat">
-        <span class="stat__value">4</span>
-        <span class="stat__label">GPU architectures — Strix Halo, Strix Point, Krackan Point, MI350X</span>
-      </div>
-      <div class="stat">
-        <span class="stat__value">32K</span>
-        <span class="stat__label">Maximum supported context, in tokens</span>
-      </div>
-    </div>
-    <p>
-      The fifty-plus above is what has been brought up and measured
-      on the hardware, on Strix Halo. Sixteen of those are the
-      <em>official matrix</em> — the models that gate
-      every release on function, performance and accuracy. Seven of the sixteen
-      are below; the rest are on the
-      <a href="{{ '/docs/models/' | relative_url }}">model matrix</a>.
-    </p>
-  </div>
-</section>
-
 <section class="section">
   <div class="section__inner">
     <p class="kicker">Model showcase</p>
@@ -169,6 +121,13 @@ description: >-
       suite — brought up on the hardware and checked for function, performance
       and accuracy before {{ snap.release }} ships, with a regression in any of
       the three blocking the release.
+    </p>
+    <p>
+      The fifty-plus in the panel above is everything that has been brought up
+      and measured on the hardware, on Strix Halo. Sixteen of those are the
+      <em>official matrix</em> — the models that gate every release on function,
+      performance and accuracy. Seven of the sixteen are below; the rest are on
+      the <a href="{{ '/docs/models/' | relative_url }}">model matrix</a>.
     </p>
 
     <div class="badge-row">
@@ -320,6 +279,68 @@ morphizen-ep.cpp:344] Using backend: mlir-backend
     <div class="btn-row">
       <a class="btn btn--primary" href="{{ '/docs/tutorials/verify-gpu/' | relative_url }}">Prove the GPU ran it</a>
       <a class="btn btn--ghost" href="{{ '/docs/tutorials/benchmark/' | relative_url }}">Benchmark without fooling yourself</a>
+    </div>
+  </div>
+</section>
+
+{%- comment -%}
+The Highlights from the repository README. They were in the hero panel and are
+now here, below the install and the verification sections: they answer "how is
+this built", which is a question a reader asks after deciding the thing is
+worth their afternoon, not before.
+{%- endcomment -%}
+<section class="section">
+  <div class="section__inner">
+    <p class="kicker">Under the hood</p>
+    <h2 class="headline-md">What the provider actually does</h2>
+    <div class="card-grid">
+      <div class="card">
+        <p class="card__title">MLIR compiler pipeline</p>
+        <p class="card__body">ONNX dialect, to a custom HIP dialect, to LLVM IR
+          — integrated with ONNX Runtime through the MorphiZen pass framework.</p>
+      </div>
+      <div class="card">
+        <p class="card__title">ROCm execution backends</p>
+        <p class="card__body">The compiled graph dispatches into hipDNN and
+          hipBLASLt for the operations they cover, and into HIP kernels written
+          for this project where they do not.</p>
+      </div>
+      <div class="card">
+        <p class="card__title">Dynamic shapes</p>
+        <p class="card__body">Shapes are refined during compilation and the rest
+          is computed in the graph, including outputs whose size is not known
+          until the run.</p>
+      </div>
+      <div class="card">
+        <p class="card__title">GPU memory planning</p>
+        <p class="card__body">Every transient is placed in one of a few
+          grow-on-demand pools rather than allocated per inference. Host-written
+          shape scalars are kept apart, in host-mapped scratch.</p>
+      </div>
+      <div class="card">
+        <p class="card__title">In-graph output allocation</p>
+        <p class="card__body">Graph outputs come from the provider's own
+          allocation callback once their runtime shapes are known, so they stay
+          owned by the runtime instead of being copied out of a pool.</p>
+      </div>
+      <div class="card">
+        <p class="card__title">Externalized constants</p>
+        <p class="card__body">Large tensors live beside the model artifact
+          rather than inside it, which keeps the artifact small enough to cache
+          and re-emit cheaply.</p>
+      </div>
+      <div class="card">
+        <p class="card__title">Two artifact formats</p>
+        <p class="card__body">By default a model becomes OS-portable LLVM
+          bitcode, JIT-loaded in-process when the session is created. A native
+          <code>.dll</code>/<code>.so</code> is an opt-in.</p>
+      </div>
+      <div class="card">
+        <p class="card__title">Extensible pipeline</p>
+        <p class="card__body">The pipeline exposes registered plugin slots, and
+          dialects and passes can be loaded from outside the tree — so a stage
+          can be replaced without forking the compiler.</p>
+      </div>
     </div>
   </div>
 </section>
