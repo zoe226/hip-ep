@@ -198,8 +198,7 @@ architecture.
       Only <code>gfx1151</code> ships hipBLASLt and rocBLAS tuning data, so read
       Strix Point and Krackan Point GEMM performance as uncharacterized rather
       than representative. A GPU that is not in this table will still build, but
-      nothing in CI exercises it — the
-      <a href="{{ '/docs/' | relative_url }}">overview</a> has the detail.
+      nothing in CI exercises it.
     </p>
   </div>
 </section>

@@ -14,9 +14,9 @@ rather than a rewrite.
 
 ## How a graph gets executed
 
-hip-ep is a compiler, not an operator library. When ONNX Runtime assigns a
-subgraph to it, hip-ep lowers that subgraph through an MLIR pipeline and
-produces machine code for your specific GPU:
+hip-ep is an LLM inference backend, not an operator library. When ONNX Runtime
+assigns a subgraph to it, hip-ep lowers that subgraph through an MLIR pipeline
+and produces machine code for your specific GPU:
 
 1. **ONNX → HIP dialect.** The ONNX operations are converted into a custom MLIR
    `hip` dialect that models GPU memory, kernels and library calls explicitly.
@@ -34,72 +34,19 @@ The practical consequence: **the first inference of a model is slow** — that i
 the compile — and every inference after it is not. Any benchmark that does not
 warm up is measuring the compiler, not the GPU.
 
-## Two things that will bite you
-
-Both of these produce symptoms that look like something else entirely, so they
-are stated up front rather than left for a troubleshooting page.
-
-<div class="note note--warn" markdown="1">
-**A build must target the architecture of the GPU that will run it.** A
-mismatched architecture builds and installs cleanly and then fails at the moment
-a kernel launches. The build auto-detects the local GPU; if you build on one
-machine and run on another, set the target explicitly.
-</div>
-
-<div class="note note--warn" markdown="1">
-**Correct numerical output is not proof that the GPU ran anything.** If hip-ep
-fails to compile a subgraph, ONNX Runtime silently falls back to the CPU EP and
-the results are still right — just slow. Set `HIPDNN_EP_STRICT=1` when you need
-compilation failures to be loud.
-</div>
-
 ## Supported hardware
 
 The table below is what the `{{ site.hip_ep_version }}` packages actually
-contain, checked by unpacking them. The two platforms do not cover the same set
-of GPUs.
+contain, checked by unpacking them.
 
-| GPU | Architecture | Linux package | Windows package |
-|---|---|---|---|
-| Ryzen AI Max ("Strix Halo") | `gfx1151` | Yes | Yes |
-| Ryzen AI ("Strix Point") | `gfx1150` | Source build | Yes |
-| Ryzen AI ("Krackan Point") | `gfx1152` | Source build | Yes |
-| Instinct MI350X | `gfx950` | Source build | — |
+| GPU | Architecture |
+|---|---|
+| Ryzen AI Max ("Strix Halo") | `gfx1151` |
+| Ryzen AI ("Strix Point") | `gfx1150` |
+| Ryzen AI ("Krackan Point") | `gfx1152` |
 
 The Windows package carries the GPU kernels for all three RDNA 3.5 parts in one
-download, which is why it has no architecture suffix. The Linux package is
-built for `gfx1151` only.
-
-<div class="note" markdown="1">
-**Tuned-library coverage is narrower than kernel coverage.** The Windows package
-ships hipBLASLt and rocBLAS tuning data for `gfx1151` only. `gfx1150` and
-`gfx1152` run, but GEMM-heavy models on those parts are not running against
-tuning data selected for them, so treat their performance as uncharacterized
-rather than representative.
-</div>
-
-A GPU that is not in that table is not a supported configuration. You can still
-try it — `build.py --hip_arch <gfx-arch>` accepts any architecture the ROCm
-toolchain supports, and it may well work — but nothing in CI exercises it, so a
-failure there is not something we can act on.
-
-## What ROCm you need
-
-This differs sharply by platform — one side needs nothing, the other needs a
-whole ROCm installation you provide yourself.
-
-- **Windows — nothing to install.** The package is self-contained: alongside the
-  EP it bundles the HIP runtime (`amdhip64_7.dll`), the code-object manager, the
-  HIP RTC libraries, hipBLASLt, rocBLAS and MIOpen. You need a current AMD
-  Adrenalin driver and nothing else.
-- **Linux — install ROCm yourself.** The package bundles the EP, the ONNX
-  Runtime and OGA runtimes, and a `clang`/`lld` toolchain for the per-model link
-  step, but no ROCm. You supply the HIP runtime and point `THEROCK_DIST` at it.
-
-[Get Started]({{ '/docs/get-started/' | relative_url }}) walks through the
-Windows side one command at a time; Linux is documented in
-[`docs/quick_start_linux.md`]({{ site.repo_url }}/blob/main/docs/quick_start_linux.md)
-in the repository.
+download, which is why it has no architecture suffix.
 
 ## Version pinning
 
@@ -112,10 +59,6 @@ specific ABI.
 | hip-ep | `{{ site.hip_ep_version }}` |
 | ONNX Runtime | `1.27.0` |
 | ONNX Runtime GenAI (OGA) | `0.14.0` |
-
-The OGA build also carries
-[PR 2194](https://github.com/microsoft/onnxruntime-genai/pull/2194), which is
-not in the `0.14.0` release, so a stock `0.14.0` is not equivalent.
 
 The full dependency set — LLVM/MLIR/LLD, protobuf, flatbuffers, ONNX Runtime,
 TheRock ROCm — is pinned in [`cmake/deps.txt`]({{ site.repo_url }}/blob/main/cmake/deps.txt),
